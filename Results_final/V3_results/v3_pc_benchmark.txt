@@ -1,0 +1,8 @@
+V3 Paper Comparison Benchmark (PC)
+Hardware: Intel i5-1035G1, 8GB RAM, Windows, Docker 29.0.1
+Graph: Charlotte, 282,751 nodes, 559 BGs, 2450 cands
+
+Standard Dijkstra (sequential): 255.0s total (preproc=0.0s, query=255.0s)
+Parallel Dijkstra (4 cores): 126.7s total (preproc=0.0s, query=126.7s)
+Multi-source Dijkstra (ours): 53.0s total (preproc=52.3s, query=0.6s)
+OSRM CH (Contraction Hierarchies): 2685.1s total (preproc=2546.4s, query=138.7s)

@@ -1,0 +1,16 @@
+V6 BASELINE COMPARISON REPORT -- Harris Teeter Charlotte
+=================================================================
+
+QUESTION: Does the model beat simple alternatives?
+
+  Method                               MeanPct   p-value
+  -------------------------------------------------------
+  Random (expected ~50th)                49.38    0.5462
+  Population density only                44.86    0.8290
+  Inverse competitor count only          60.39    0.0290
+  Our model (Huff+Dijkstra+Comp)         63.40    0.0087
+
+GAINS OVER BASELINES
+  vs population density : +18.5 pctile points
+  vs competitor count   : +3.0 pctile points
+  vs random             : +14.0 pctile points

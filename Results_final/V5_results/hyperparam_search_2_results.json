@@ -1,0 +1,136 @@
+{
+  "brand": "Harris Teeter",
+  "city": "Charlotte, NC",
+  "test": "hyperparam_search_2_coordinate_descent",
+  "best_params": {
+    "radius_miles": 6.0,
+    "beta": 3.0,
+    "K": 5,
+    "W1": 0.6,
+    "W2": 0.3,
+    "W3": 0.1,
+    "mean_pct_rank": 60.958,
+    "converged": false
+  },
+  "round1": {
+    "huff_params": {
+      "radius": 4.0,
+      "beta": 3.0,
+      "K": 3
+    },
+    "huff_score": 55.477,
+    "weights": {
+      "W1": 0.6,
+      "W2": 0.3,
+      "W3": 0.1
+    },
+    "weight_score": 60.627
+  },
+  "round2": {
+    "huff_params": {
+      "radius": 6.0,
+      "beta": 3.0,
+      "K": 5
+    },
+    "huff_score": 60.958,
+    "weights": {
+      "W1": 0.6,
+      "W2": 0.3,
+      "W3": 0.1
+    },
+    "weight_score": 60.958
+  },
+  "converged": false,
+  "top10": [
+    {
+      "radius": 6.0,
+      "beta": 3.0,
+      "K": 5,
+      "W1": 0.6,
+      "W2": 0.3,
+      "W3": 0.1,
+      "mean_pct_rank": 60.958
+    },
+    {
+      "radius": 6.0,
+      "beta": 3.0,
+      "K": 5,
+      "W1": 0.6,
+      "W2": 0.3,
+      "W3": 0.1,
+      "mean_pct_rank": 60.958
+    },
+    {
+      "radius": 6.0,
+      "beta": 3.0,
+      "K": 4,
+      "W1": 0.6,
+      "W2": 0.3,
+      "W3": 0.1,
+      "mean_pct_rank": 60.948
+    },
+    {
+      "radius": 6.0,
+      "beta": 3.0,
+      "K": 3,
+      "W1": 0.6,
+      "W2": 0.3,
+      "W3": 0.1,
+      "mean_pct_rank": 60.936
+    },
+    {
+      "radius": 6.0,
+      "beta": 3.0,
+      "K": 2,
+      "W1": 0.6,
+      "W2": 0.3,
+      "W3": 0.1,
+      "mean_pct_rank": 60.761
+    },
+    {
+      "radius": 4.0,
+      "beta": 3.0,
+      "K": 5,
+      "W1": 0.6,
+      "W2": 0.3,
+      "W3": 0.1,
+      "mean_pct_rank": 60.652
+    },
+    {
+      "radius": 4.0,
+      "beta": 3.0,
+      "K": 4,
+      "W1": 0.6,
+      "W2": 0.3,
+      "W3": 0.1,
+      "mean_pct_rank": 60.637
+    },
+    {
+      "radius": 3.0,
+      "beta": 3.0,
+      "K": 3,
+      "W1": 0.6,
+      "W2": 0.3,
+      "W3": 0.1,
+      "mean_pct_rank": 60.631
+    },
+    {
+      "radius": 4.0,
+      "beta": 3.0,
+      "K": 3,
+      "W1": 0.6,
+      "W2": 0.3,
+      "W3": 0.1,
+      "mean_pct_rank": 60.627
+    },
+    {
+      "radius": 4.0,
+      "beta": 3.0,
+      "K": 3,
+      "W1": 0.6,
+      "W2": 0.3,
+      "W3": 0.1,
+      "mean_pct_rank": 60.627
+    }
+  ]
+}

@@ -1,0 +1,614 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_01",
+        "brand": "Harris Teeter",
+        "store_name": "Harris Teeter",
+        "address": "3333 Pineville Matthews Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28226",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 3333, Pineville-Matthews Road, Charlotte, Mecklenburg County, North Carolina, 28226, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.7845157,
+          35.0963538
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_02",
+        "brand": "Harris Teeter",
+        "store_name": "Harris Teeter",
+        "address": "15007 John J Delaney Dr",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28277",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 15007, John J Delaney Drive, Ballantyne Commons East, Ballantyne, Charlotte, Mecklenburg County, North Carolina, 28277, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.8490417,
+          35.0530618
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_03",
+        "brand": "Harris Teeter",
+        "store_name": "Harris Teeter",
+        "address": "4821 Berewick Town Center Dr",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28278",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 4821, Berewick Town Center Drive, Berewick Town Center, Charlotte, Mecklenburg County, North Carolina, 28278, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.9730535,
+          35.1605052
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_04",
+        "brand": "Harris Teeter",
+        "store_name": "Harris Teeter",
+        "address": "9720 Rea Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28277",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 9720, Rea Road, Blakeney, Charlotte, Mecklenburg County, North Carolina, 28277, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.8067753,
+          35.0363385
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_05",
+        "brand": "Harris Teeter",
+        "store_name": "Harris Teeter",
+        "address": "9641 Brookdale Dr",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28215",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 9641, Brookdale Drive, Brookdale, Charlotte, Cabarrus County, North Carolina, 28215, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.6694317,
+          35.2828491
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_06",
+        "brand": "Harris Teeter",
+        "store_name": "Harris Teeter",
+        "address": "1704 Central Ave",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28205",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 1704, Central Avenue, Plaza Midwood, Charlotte, Mecklenburg County, North Carolina, 28205, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.8103713,
+          35.2196701
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_07",
+        "brand": "Harris Teeter",
+        "store_name": "Harris Teeter",
+        "address": "2720 W Mallard Creek Church Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28262",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 2720, West Mallard Creek Church Road, Mallard, Charlotte, Mecklenburg County, North Carolina, 28262, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.7648953,
+          35.3415097
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_08",
+        "brand": "Harris Teeter",
+        "store_name": "Harris Teeter",
+        "address": "7823 Colony Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28226",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 7823, Colony Road, Charlotte, Mecklenburg County, North Carolina, 28226, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.806589,
+          35.1064397
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_09",
+        "brand": "Harris Teeter",
+        "store_name": "Harris Teeter",
+        "address": "112 S Sharon Amity Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28211",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 112, South Sharon Amity Road, Cotswold, Charlotte, Mecklenburg County, North Carolina, 28211, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.8008962,
+          35.1772917
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_10",
+        "brand": "Harris Teeter",
+        "store_name": "Harris Teeter",
+        "address": "325 W 6th St",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28202",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 325, West 6th Street, Fourth Ward, Uptown, Charlotte, Mecklenburg County, North Carolina, 28202, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.8438879,
+          35.2311074
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_11",
+        "brand": "Harris Teeter",
+        "store_name": "Harris Teeter",
+        "address": "5810 Highland Shoppes Dr",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28269",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 5810, Highland Shoppes Drive, The Maxwell at Highland, The Shoppes at Highland Creek, Charlotte, Mecklenburg County, North Carolina, 28269, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.7828056,
+          35.3716618
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_12",
+        "brand": "Harris Teeter",
+        "store_name": "Harris Teeter",
+        "address": "1227 East Blvd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28203",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 1227, East Boulevard, Dilworth Historic District, Charlotte, Mecklenburg County, North Carolina, 28203, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.8447502,
+          35.2036741
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_13",
+        "brand": "Harris Teeter",
+        "store_name": "Harris Teeter",
+        "address": "5706 Wyalong Dr",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28227",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 5706, Wyalong Drive, Charlotte, Mecklenburg County, North Carolina, 28227, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.7090922,
+          35.1729474
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_14",
+        "brand": "Harris Teeter",
+        "store_name": "Harris Teeter",
+        "address": "6701 Carnegie Blvd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28211",
+        "role": "validation",
+        "geocode_display_name": "6701, Carnegie Boulevard, Morrocroft Village, SouthPark, Charlotte, Mecklenburg County, North Carolina, 28211, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.826684,
+          35.1527
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_15",
+        "brand": "Harris Teeter",
+        "store_name": "Harris Teeter",
+        "address": "1015 Providence Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28207",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 1015, Providence Road, Myers Park, Charlotte, Mecklenburg County, North Carolina, 28207, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.8266147,
+          35.1960213
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_16",
+        "brand": "Harris Teeter",
+        "store_name": "Harris Teeter",
+        "address": "4100 Carmel Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28226",
+        "role": "validation",
+        "geocode_display_name": "4100, Carmel Road, Charlotte, Mecklenburg County, North Carolina, 28226, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.8244448,
+          35.1171341
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_17",
+        "brand": "Harris Teeter",
+        "store_name": "Harris Teeter",
+        "address": "4101 Park Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28209",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 4101, Park Road, Charlotte, Mecklenburg County, North Carolina, 28209, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.8501258,
+          35.1756969
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_18",
+        "brand": "Harris Teeter",
+        "store_name": "Harris Teeter",
+        "address": "5030 Park Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28209",
+        "role": "validation",
+        "geocode_display_name": "5030, Park Road, Parkdale, Charlotte, Mecklenburg County, North Carolina, 28209, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.8492188,
+          35.1621857
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_19",
+        "brand": "Harris Teeter",
+        "store_name": "Harris Teeter",
+        "address": "10616 Providence Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28277",
+        "role": "validation",
+        "geocode_display_name": "Starbucks, 10616, Providence Road, Providence, Charlotte, Mecklenburg County, North Carolina, 28277, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.7738179,
+          35.063199
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_20",
+        "brand": "Harris Teeter",
+        "store_name": "Harris Teeter",
+        "address": "8538 Park Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28210",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 8538, Park Road, Charlotte, Mecklenburg County, North Carolina, 28210, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.8581802,
+          35.1166744
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_21",
+        "brand": "Harris Teeter",
+        "store_name": "Harris Teeter",
+        "address": "11135 Golf Links Dr",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28277",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 11135, Golf Links Drive, Charlotte, Mecklenburg County, North Carolina, 28277, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.7725146,
+          35.0518162
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_22",
+        "brand": "Harris Teeter",
+        "store_name": "Harris Teeter",
+        "address": "4701 Smith Farm Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28216",
+        "role": "validation",
+        "geocode_display_name": "4701, Smith Farm Road, Mountain Island Village, Shuffletown, Charlotte, Mecklenburg County, North Carolina, 28216, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.940909,
+          35.32666
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_23",
+        "brand": "Harris Teeter",
+        "store_name": "Harris Teeter",
+        "address": "1621 Sardis Rd N",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28270",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 1621, Sardis Road North, Forest Homes, Charlotte, Mecklenburg County, North Carolina, 28270, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.7387116,
+          35.1407002
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_24",
+        "brand": "Harris Teeter",
+        "store_name": "Harris Teeter",
+        "address": "2717 South Blvd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28209",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 2717, South Boulevard, Sedgefield, Charlotte, Mecklenburg County, North Carolina, 28209, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.8656497,
+          35.2006718
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_25",
+        "brand": "Harris Teeter",
+        "store_name": "Harris Teeter",
+        "address": "16625 Lancaster Hwy",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28277",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 16625, Lancaster Highway, Shoppes at Ardrey Kell, Charlotte, Mecklenburg County, North Carolina, 28277, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.8481158,
+          35.0242423
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_26",
+        "brand": "Harris Teeter",
+        "store_name": "Harris Teeter",
+        "address": "13000 S Tryon St",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28278",
+        "role": "validation",
+        "geocode_display_name": "13000, South Tryon Street, Charlotte, Mecklenburg County, North Carolina, 28278, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.9900134,
+          35.1022686
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_27",
+        "brand": "Harris Teeter",
+        "store_name": "Harris Teeter",
+        "address": "7852 Rea Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28277",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 7852, Rea Road, Stonecrest, Charlotte, Mecklenburg County, North Carolina, 28277, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.8167237,
+          35.0599658
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_28",
+        "brand": "Harris Teeter",
+        "store_name": "Harris Teeter",
+        "address": "8445 Davis Lake Pkwy",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28269",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 8445, Davis Lake Parkway, Croft, Charlotte, Mecklenburg County, North Carolina, 28269, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.8145127,
+          35.3341087
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_29",
+        "brand": "Harris Teeter",
+        "store_name": "Harris Teeter",
+        "address": "8600 University City Blvd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28213",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 8600, University City Boulevard, University City, Charlotte, Mecklenburg County, North Carolina, 28213, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.7383763,
+          35.2962498
+        ]
+      }
+    }
+  ]
+}

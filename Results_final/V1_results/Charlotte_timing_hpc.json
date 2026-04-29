@@ -1,0 +1,23 @@
+{
+  "city": "Charlotte",
+  "hardware": "HPC gal-i9 cluster, Red Hat Enterprise Linux, Python 3.9.23",
+  "ram_budget_gb": 80.0,
+  "ram_used_gb": 68.0,
+  "n_road_nodes": 282751,
+  "n_road_edges": 585666,
+  "n_bg_sources": 559,
+  "n_candidates": 2450,
+  "matrix_gb": 1.18,
+  "n_chunks": 1,
+  "fair_comparison": true,
+  "multisource_direction": "from BGs (559 < 2450 candidates)",
+  "multisource_time_s": 42.7,
+  "multisource_time_min": 0.712,
+  "std_dijkstra_sources": 2450,
+  "std_dijkstra_time_s": 196.8,
+  "std_dijkstra_time_min": 3.28,
+  "std_dijkstra_fully_measured": true,
+  "speedup": 4.63,
+  "per_std_dijkstra_run_s": 0.0804,
+  "notes": "Single-chunk run (full matrix fits in 68 GB RAM). Multi-source Dijkstra runs from 559 BG centroids simultaneously using scipy.sparse.csgraph.dijkstra."
+}

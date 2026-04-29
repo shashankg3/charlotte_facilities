@@ -1,0 +1,1142 @@
+\documentclass[conference]{IEEEtran}
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{url}
+
+
+\begin{document}
+
+\title{A Composite Spatial Accessibility Index for Urban Facility Location}
+
+\author{\IEEEauthorblockN{Rasmus Erlemann, Hruthika Goud Tigulla, Shashank Gajula}
+\IEEEauthorblockA{\textit{College of Computing and Informatics}\\
+\textit{University of North Carolina at Charlotte}\\
+Charlotte, North Carolina, USA\\
+\{rerlemann, htigulla, sgajula3\}@charlotte.edu}}
+
+\maketitle
+
+% =============================================================
+\begin{abstract}
+% =============================================================
+Choosing where to open a new store or clinic is a decision that affects
+thousands of people, yet the three factors that matter most are almost
+never analyzed together: how many potential customers live nearby, how
+quickly they can drive there on real roads, and how many competing
+facilities already serve the area.  We introduce a composite
+accessibility index that combines all three into a single bounded,
+weight-controllable score for every candidate location, letting
+decision-makers compare sites on equal footing.
+
+The index fuses the Huff gravity model (consumer demand capture), a
+road-network reachability score (average driving time weighted by
+population), and a population-normalized count of existing facilities.
+Computing road travel times at city scale is the main computational
+bottleneck.  We show that by exploiting the symmetry of undirected road
+graphs, shortest paths can be computed from the smaller of the two
+source sets in a single compiled operation, achieving 4.6$\times$ speedup
+for Charlotte, NC over running one query per candidate site.
+
+The framework is validated through four experiments: runtime scaling
+across three US metropolitan road networks of increasing size (V1),
+weight calibration against the known store network of an established grocery
+retailer (V2), a head-to-head comparison with routing methods from three
+recent published studies (V3), and a permutation significance test
+confirming the calibration is non-random (V4, $p = 0.0099$).  The complete pipeline uses only publicly
+available OpenStreetMap road data and US Census demographics, and runs
+in standard Python without external routing infrastructure.
+\end{abstract}
+
+\begin{IEEEkeywords}
+facility location, spatial accessibility, Huff gravity model,
+Dijkstra shortest path, geographic information systems, urban planning
+\end{IEEEkeywords}
+
+% =============================================================
+\section{Introduction}
+% =============================================================
+
+The Facility Location Problem asks which candidate site best balances
+demand, travel convenience, and market competition.  Classical
+formulations such as the $p$-median problem~\cite{ReVelle2005} assume
+straight-line distances, but circuitous urban road networks can change
+which site ranks highest.  Evaluating candidates on actual road-network
+travel time therefore requires shortest-path distances between every
+candidate and every residential demand zone, a computation whose cost
+grows with network size and candidate count.
+
+Gravity-based models, particularly the Huff model~\cite{Huff1964},
+allocate demand probabilistically across competing facilities, but most
+implementations rely on Euclidean distances and are disconnected from
+network accessibility measures.  Network accessibility
+studies~\cite{Hansen1959, Xu2020} quantify reachability but rarely
+account for market dynamics.  Gravity models consequently overestimate
+accessibility in poorly connected areas, while accessibility studies
+ignore market saturation.
+
+We introduce a site selection framework that combines Huff market
+potential, a Hansen road-network accessibility index, and a
+stores-per-capita competition metric into a single bounded score.
+Decision-makers can compare thousands of candidates and adjust scoring
+weights to match their priorities, without GIS expertise or external
+routing infrastructure.  The accessibility computation uses
+Multi-source Dijkstra via scipy's compiled C backend, exploiting the
+fact that on undirected road graphs distances can be computed from
+whichever source set is smaller---this is a standard property of
+undirected graphs, applied here to make the framework tractable at city
+scale (Section~\ref{sec:method}).  We do not claim Reverse Dijkstra as
+a novel algorithm; our contribution is its systematic application within
+a composite scoring pipeline that is validated quantitatively.
+
+The main contributions of this paper are:
+\begin{enumerate}
+    \item A composite spatial accessibility index integrating Huff
+    market potential, Hansen road-network accessibility, and a
+    population-normalized competition penalty into a single
+    weight-controllable candidate score (Section~\ref{sec:method}).
+    \item A reproducible pipeline using only public OpenStreetMap
+    and US Census data, running on commodity hardware without
+    proprietary routing software or GIS infrastructure.
+    \item A four-experiment validation protocol (V1--V4): runtime
+    scaling across three US cities, retrospective weight calibration
+    against a real store network, a head-to-head routing comparison
+    with three published methods, and a permutation significance test
+    confirming calibration is non-random ($p = 0.0099$).
+    \item Empirical evidence that Multi-source Dijkstra from the
+    smaller source set achieves $1.9$--$4.6\times$ speedup over
+    standard sequential Dijkstra and outperforms OSRM Contraction
+    Hierarchies on one-to-all accessibility workloads.
+\end{enumerate}
+
+The full pipeline runs on commodity hardware using only publicly
+available Census and OpenStreetMap data, with no proprietary routing
+engine, GIS license, or external infrastructure.
+
+% =============================================================
+\section{Related Work}
+% =============================================================
+
+\subsection{Facility Location and Gravity Models}
+
+Classical facility location models ($p$-median~\cite{Hakimi1964},
+$p$-centre, maximal covering~\cite{Church1974}, set
+covering~\cite{Toregas1971}) provide rigorous
+optimization frameworks but rely on simplified distance metrics and
+homogeneous demand~\cite{ReVelle2005, Owen1998, Farahani2012,
+Drezner2024}.  Equity considerations have also been incorporated into
+location planning~\cite{Morrill1977}.  The Huff
+model~\cite{Huff1964} treats consumer choice probabilistically,
+allocating demand inversely proportional to a power of travel
+distance~\cite{Wilson1971, Nakanishi1974, Fotheringham1983,
+Suhara2019, Liang2020}.  Network-aware extensions account for
+patronage patterns shaped by competitor distribution and transportation
+structure~\cite{Sevtsuk2017, Verhetsel2022}, but most implementations
+still use Euclidean impedance and do not integrate accessibility as a
+separate scored component.
+
+\subsection{Network Accessibility and Travel-Time Realism}
+
+Hansen~\cite{Hansen1959} defined accessibility as the ease with which
+opportunities can be reached, a concept now standard in transportation
+planning~\cite{Geurs2004,Luo2003,Wang2012}.  Empirical work shows that
+accessibility patterns follow spatial laws shaped by road network
+structure~\cite{Xu2020} and that socioeconomic context exposes
+inequities hidden under pure travel-time measures~\cite{Kharel2024},
+motivating demand weights that capture both volume and purchasing power.
+
+\subsection{Competition and Market Saturation in Site Selection}
+
+Market saturation is typically omitted from accessibility models.
+Food desert studies document how grocery access varies by neighbourhood
+income and race~\cite{Apparicio2007,Beaulac2009,VerPloeg2012}, but
+focus on measuring deficits rather than scoring candidate sites.  A
+population-normalized competition index fills this gap, capturing
+whether supply keeps pace with demand in each candidate's catchment.
+
+\subsection{Shortest-Path Computation in Accessibility Studies}
+
+Point-to-point acceleration algorithms such as A*~\cite{Hart1968},
+Bidirectional Dijkstra, and Contraction Hierarchies
+(CH)~\cite{Geisberger2008} exploit goal-directed pruning that provides
+no benefit when the full distance vector from a source is required, as
+in accessibility computation.  A comprehensive survey of route
+planning methods is given in~\cite{Bast2016}.  The correct one-to-all
+extension of Contraction Hierarchies is PHAST~\cite{Delling2011},
+which requires specialized C++ implementations not available in
+standard scientific Python toolkits~\cite{Virtanen2020}.
+
+Recent accessibility studies have used different strategies.
+Jin and Lu~\cite{Jin2022} used ArcGIS OD Cost Matrix (sequential
+Dijkstra) for multi-mode food accessibility analysis.  Kang et
+al.~\cite{Kang2020} parallelized the Enhanced Two-Step Floating
+Catchment Area method across CPU cores.  Horton et
+al.~\cite{Horton2025} used OSRM with Contraction Hierarchies for a
+Kolm-Pollak equity optimization study.  We show that an efficient
+implementation choice---exploiting undirected-graph symmetry via
+Multi-source Dijkstra in standard Python---achieves comparable or
+better performance than external routing engines, without preprocessing
+infrastructure or proprietary software.
+
+% =============================================================
+\section{Methodology}
+\label{sec:method}
+% =============================================================
+
+Fig.~\ref{fig:pipeline} summarises the full system pipeline.  Raw
+inputs from three public data sources feed into preprocessing stages
+(Extract, Transform, Load (ETL), spatial standardization, road graph construction, demand
+attribute normalization, and demand-to-graph mapping), which supply
+three parallel scoring components (Huff market potential, Multi-source
+Dijkstra accessibility, and local competition index).  The components
+are combined into a final weighted suitability score and filtered by a
+diversity constraint to produce the ranked location recommendations.
+
+\begin{figure*}[!t]
+    \centering
+    \includegraphics[width=\textwidth]{archimate_exact_v2.png}
+    \caption{ArchiMate~3.x layered architecture of the proposed framework.
+    \textbf{Business layer}: Retail Strategist $\to$ Site Selection Report
+    $\to$ Top-$N$ Locations.
+    \textbf{Application layer}: ETL $\to$ Road Graph Construction $\to$
+    Multi-source Dijkstra produces a $559\times282{,}751$ Distance Matrix;
+    three independent scoring components (Huff Market Capture, Accessibility
+    Index, Competition Index) feed Composite Scoring.
+    \textbf{Technology layer}: HPC node (Intel~i9, 80\,GB,
+    Python/SciPy) with CSR sparse matrix storage.
+    Dashed arrows: data access; open arrows: serving; filled-circle arrows:
+    assignment.}
+    \label{fig:pipeline}
+\end{figure*}
+
+
+\subsection{Data Sources and Preprocessing}
+
+The framework requires three publicly available inputs:
+
+\textbf{Demand zones.}  Census block groups (BGs) from the American
+Community Survey~\cite{Census2023}, each carrying population
+($\text{pop}_i$), median household income ($\text{inc}_i$), and
+population density ($\text{dens}_i$).  For Charlotte, NC (Mecklenburg County):
+$N_{\text{BG}} = 559$ block groups after clipping to the city
+boundary.  Fig.~\ref{fig:block_groups} shows the 559 block group
+boundaries across Mecklenburg County.
+
+\begin{figure}[!t]
+    \centering
+    \includegraphics[width=\linewidth]{block_group.png}
+    \caption{Census block group boundaries across Mecklenburg County
+    (559 groups after clipping to the city boundary).  Each polygon
+    carries four ACS attributes: Geographic Identifier (GEOID), total population, area
+    (sq.\ mi), population density (persons/sq.\ mi), and median
+    household income.  These attributes feed directly into the
+    composite demand weight $B_i$ (Eq.~\ref{eq:demand_weight}).}
+    \label{fig:block_groups}
+\end{figure}
+
+\textbf{Road network.}  OpenStreetMap~\cite{OSM2024} drive-accessible
+road segments, downloaded using OSMnx~\cite{Boeing2017} and
+represented as an undirected weighted graph $G = (V, E, w)$ where edge
+weight $w_e$ is segment length in metres.  Charlotte:
+$|V| = 282{,}751$ nodes, $|E| = 585{,}666$ edges.  The graph is
+stored as a symmetric Compressed Sparse Row (CSR) matrix and passed
+directly to \texttt{scipy.sparse.csgraph.dijkstra}~\cite{Virtanen2020}
+with \texttt{directed=False}.
+
+\textbf{Candidate sites.}  Extracted from OSM commercial landuse
+polygons (\texttt{landuse=retail/commercial},
+\texttt{shop=supermarket}), area-filtered to
+$500$--$500{,}000\,\text{m}^2$ (lower bound excludes kiosks and
+parking stalls; upper bound excludes large industrial parcels
+unsuitable for retail), represented by polygon centroids.
+Charlotte: $N_{\text{cands}} = 2{,}450$.  All 28 Harris Teeter
+ground-truth stores fall within 0.5 miles of a candidate.
+
+\textbf{Existing facilities.}  Coordinates of target-brand and
+competitor stores.  Charlotte: 28 Harris Teeter plus 52 competitors
+(Kroger, Publix, Food Lion, Aldi, Lidl, and similar full-service
+supermarkets), totaling 80 grocery stores within Mecklenburg County.
+Competitor locations were extracted from OSM nodes tagged
+\texttt{shop=supermarket} or \texttt{shop=grocery} within the county
+boundary and verified against publicly available store locator data.
+
+All geometries are projected to NAD83/North Carolina (EPSG:32119) for
+metric computation.
+
+\textbf{Node snapping.}  Block group centroids and candidate sites are snapped to their nearest road node via k-d tree ($k=1$), producing index arrays \texttt{bg\_node\_ids} and \texttt{cand\_node\_ids}.  Block groups with suppressed ACS income values are excluded from downstream computation.
+
+\begin{table}[!t]
+\centering
+\caption{Charlotte Case Study: Data Summary}
+\label{tab:data_summary}
+\begin{tabular}{lr}
+\toprule
+\textbf{Component} & \textbf{Count} \\
+\midrule
+Census block groups (demand zones) & 559 \\
+Candidate locations (OSM commercial) & 2{,}450 \\
+Harris Teeter stores (ground truth) & 28 \\
+Competitor grocery stores & 52 \\
+Road network nodes & 282{,}751 \\
+Road network edges & 585{,}666 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Normalization}
+\label{sec:norm}
+
+Before any component is used in scoring, each raw variable is
+independently scaled to the interval $[0.01, 1.0]$.  Raw values are
+first clipped to their 1st and 99th percentiles to suppress the effect
+of extreme outliers, then mapped by a linear min-max transform:
+\begin{equation}
+\tilde{x}_i
+  = 0.01 + 0.99\,\frac{
+      \text{clip}(x_i,\,p_1,\,p_{99}) - p_1
+    }{
+      p_{99} - p_1
+    }
+\label{eq:norm}
+\end{equation}
+where $p_1$ and $p_{99}$ are the 1st and 99th percentiles of variable
+$x$.  The lower bound of 0.01 (rather than 0) ensures that no element
+receives a zero weight, which would remove it entirely from
+multiplicative terms.  This normalization is applied independently to
+$\text{pop}_i$, $\text{inc}_i$, $\text{dens}_i$, and to each of the
+three scoring components $P_k$, $A_k$, $S_k$ before combination in
+Eq.~(\ref{eq:score}).  The tilde notation $\tilde{(\cdot)}$ denotes a
+value that has been normalized by Eq.~(\ref{eq:norm}).
+
+\subsection{Demand Weight Construction}
+
+Each block group $i$ receives a composite demand weight $B_i$
+constructed from three ACS attributes.  Let $\widetilde{\text{pop}}_i$
+denote the normalized total population (volume of potential customers),
+$\widetilde{\text{inc}}_i$ the normalized median household income
+(purchasing power), and $\widetilde{\text{dens}}_i$ the normalized
+population density in residents per square mile (spatial concentration
+of demand), each scaled by Eq.~(\ref{eq:norm}).  Then:
+\begin{equation}
+B_i = 0.4\,\widetilde{\text{pop}}_i
+    + 0.3\,\widetilde{\text{inc}}_i
+    + 0.3\,\widetilde{\text{dens}}_i
+\label{eq:demand_weight}
+\end{equation}
+The default coefficients $(0.4,\;0.3,\;0.3)$ are configurable inputs,
+not empirically derived constants.  A discount chain entering a new
+market might increase the population coefficient because volume
+outweighs affluence; a premium grocer might increase the income
+coefficient because purchasing power drives basket size.
+
+\subsection{Huff Market Potential}
+
+Let $W_1$, $W_2$, $W_3 \geq 0$ with $W_1 + W_2 + W_3 = 1$ denote the
+outer scoring weights for demand, accessibility, and competition
+respectively; these are defined formally in the composite score
+(Eq.~\ref{eq:score}) and calibrated retrospectively in
+Section~\ref{sec:v2}.
+
+The Huff gravity model~\cite{Huff1964} estimates the probability that
+demand from block group $i$ is captured by candidate $k$ rather than
+by existing competitors $j \in C$:
+\begin{equation}
+\text{Share}_{ik} = \frac{t_{ik}^{-\beta}}
+                         {t_{ik}^{-\beta}
+                          + \sum_{j \in C_K(i)} t_{ij}^{-\beta}}
+\label{eq:huff}
+\end{equation}
+where $t_{ik}$ is travel time in minutes (Euclidean distance divided by
+an assumed speed of 35\,mph), $\beta$ is the distance-decay exponent
+(default 2.0), and $C_K(i)$ is the set of $K$ nearest competitor stores
+to block group $i$ (default $K = 3$).  Using $K$ nearest competitors
+rather than all competitors avoids diluting the denominator with distant
+facilities that have negligible influence on local choice behavior.
+
+The raw market potential for candidate $k$ is:
+\begin{equation}
+P_k = \sum_{i \in R_k} B_i\,\text{Share}_{ik}
+\label{eq:potential}
+\end{equation}
+where $R_k$ is the set of block groups whose centroids fall within a
+5-mile catchment radius of candidate $k$, and $B_i$ is the composite
+demand weight from Eq.~(\ref{eq:demand_weight}).
+
+The Huff model uses Euclidean distance rather than road-network
+distance.  This choice is deliberate: Huff captures consumer
+\textit{perception} of effort, not actual routing cost.  Shoppers
+comparing two stores reason in straight-line terms, not turn-by-turn
+directions.  Huff's original formulation used Euclidean distance for
+this reason~\cite{Huff1964}, and subsequent retail gravity
+implementations have largely followed suit~\cite{Suhara2019,
+Liang2020}.  Road-network distance is the appropriate metric for the
+accessibility component (Eq.~\ref{eq:tbar}), which quantifies travel
+burden on real infrastructure.
+
+\subsection{Road-Network Accessibility Index}
+\label{sec:sssp}
+
+\subsubsection{Computing the Distance Matrix}
+
+The accessibility component requires one-to-all shortest-path
+distances from each source to all road nodes.  Three strategies are
+possible:
+
+\textbf{Standard (Forward) Dijkstra.}  Run one shortest-path
+computation from each of the $N_{\text{cands}}$ candidates, requiring
+$N_{\text{cands}}$ calls.
+
+\textbf{Reverse Dijkstra.}  Because $G$ is undirected, $d(A,B) =
+d(B,A)$.  Running from each of the $N_{\text{BG}}$ block groups
+instead yields the same distance matrix with fewer calls when
+$N_{\text{BG}} < N_{\text{cands}}$, giving a theoretical call-count
+ratio of $N_{\text{cands}}/N_{\text{BG}} = 2{,}450/559 \approx 4.38\times$
+for Charlotte.
+
+\textbf{Multi-source Dijkstra.}  Rather than issuing one call per
+block group, all $N_{\text{BG}}$ source nodes (stored in
+\texttt{bg\_node\_ids}) are passed simultaneously to a single
+\texttt{scipy.sparse.csgraph.dijkstra}~\cite{Virtanen2020} call with
+\texttt{directed=False} and \texttt{indices=bg\_node\_ids}.  The
+function returns a dense matrix $D$ of shape $N_{\text{BG}} \times
+|V|$, where $D[s, v]$ holds the shortest-path distance from source
+block group $s$ to road node $v$.
+
+This is mathematically equivalent to $N_{\text{BG}}$ sequential reverse-Dijkstra calls and faster because (a) $N_{\text{BG}} < N_{\text{cands}}$ for Charlotte and (b) a single compiled C call eliminates Python interpreter overhead across hundreds of invocations.
+
+The road distance from block group $i$ to candidate $k$ is then
+retrieved as a single array lookup:
+\begin{equation}
+d_{ik}^{\text{road}} = D\bigl[\,\text{bg\_idx}(i),\;
+                                \text{cand\_node}(k)\,\bigr]
+\label{eq:lookup}
+\end{equation}
+and converted to travel time in minutes:
+\begin{equation}
+t_{ik}^{\text{road}}
+  = \frac{d_{ik}^{\text{road}}}{35 \times 0.44704 \times 60}
+  = \frac{d_{ik}^{\text{road}}}{936.8}\;\text{[minutes]}
+\label{eq:ttime}
+\end{equation}
+where $d_{ik}^{\text{road}}$ is in metres, $35\,\text{mph} \times
+0.44704\,\text{m\,s}^{-1}\text{mph}^{-1} = 15.65\,\text{m/s}$, and
+dividing by 60 converts seconds to minutes.
+
+The Dijkstra distance limit is set to $r \times 1.30$ (circuity
+factor) to accommodate road-network indirection beyond the straight-
+line catchment radius $r = 5$ miles.
+
+\subsubsection{Accessibility Score Computation}
+
+The demand-weighted average shortest-path travel time from all block
+groups in the catchment to candidate $k$ is:
+\begin{equation}
+\bar{t}_k = \frac{\sum_{i \in R_k} B_i \cdot t_{ik}^{\text{road}}}
+                  {\sum_{i \in R_k} B_i}
+\label{eq:tbar}
+\end{equation}
+where $t_{ik}^{\text{road}}$ is the Dijkstra shortest-path travel time
+on $G$ and $B_i$ is the composite demand weight from
+Eq.~(\ref{eq:demand_weight}).  Block groups with no finite path to
+candidate $k$ are excluded from both the numerator and denominator.
+
+The accessibility score follows the Hansen~\cite{Hansen1959}
+negative-exponential form:
+\begin{equation}
+A_k = \exp\!\bigl(-\alpha \cdot \bar{t}_k\bigr), \quad \alpha = 0.05
+\label{eq:access}
+\end{equation}
+The value $\alpha = 0.05$ is consistent with driving-mode decay rates
+reported in the urban accessibility literature for catchment radii of
+5--10\,miles~\cite{Luo2003, Wang2012}, and produces meaningful spread
+across typical urban travel times: $A_k = 0.78$ at $\bar{t}_k =
+5$\,min, 0.61 at 10\,min, 0.47 at 15\,min, and 0.37 at 20\,min.
+Sensitivity analysis over $\alpha \in \{0.03,\,0.05,\,0.08\}$
+showed Spearman rank correlation above 0.96 across all candidate
+rankings, confirming the final ranking is stable with respect to
+this parameter.
+
+\subsection{Competition Saturation Index}
+
+Within a 5-mile radius of candidate $k$, let $C_k$ be the count of all
+existing stores (target-brand and competitors, since the market is
+saturated regardless of brand) and $\text{Pop}_k$ the raw total
+population across all block groups in that catchment:
+\begin{equation}
+S_k = \frac{C_k}{\text{Pop}_k / 10{,}000}
+\label{eq:competition}
+\end{equation}
+Higher values indicate more saturated markets.  Normalizing by
+population rather than area avoids penalizing dense urban sites simply
+because they have many nearby stores; what matters is whether supply
+keeps pace with demand.
+
+\subsection{Composite Suitability Score}
+
+All three components are independently normalized to $[0.01, 1.0]$ via
+Eq.~(\ref{eq:norm}) before combination.  The scoring weights $W_1$,
+$W_2$, $W_3 \geq 0$ with $W_1 + W_2 + W_3 = 1$ control each
+component's contribution:
+\begin{equation}
+\text{Score}_k
+  = W_1\,\widetilde{P}_k
+  + W_2\,\widetilde{A}_k
+  - W_3\,\widetilde{S}_k
+\label{eq:score}
+\end{equation}
+where $\widetilde{P}_k$, $\widetilde{A}_k$, and $\widetilde{S}_k$ are
+the normalized market potential, accessibility score, and competition
+index for candidate $k$, each produced by Eq.~(\ref{eq:norm}).  Market
+potential and accessibility contribute positively; competition enters
+as a penalty.  The score range is $\text{Score}_k \in [-W_3,\;
+W_1 + W_2]$.
+
+The weights $W_1, W_2, W_3$ are calibrated against the known store
+network of whichever facility type is being analyzed
+(Section~\ref{sec:v2}), making the framework adaptable to any retailer,
+healthcare provider, or public service.
+
+\subsection{Spatial Diversity Selection}
+
+The top $N$ sites are selected by greedy spatial-diversity search: the
+highest-scoring candidate is chosen first, then iteratively the next
+highest-scoring candidate at least $d_{\min} = 2.5$ miles from every
+already-selected site.  This heuristic prevents the clustering that
+unconstrained score-maximization would produce, spreading
+recommendations across the market area.
+
+\begin{table}[!t]
+\centering
+\caption{Model Parameters and Default Values}
+\label{tab:params}
+\begin{tabular}{lll}
+\toprule
+\textbf{Symbol} & \textbf{Default} & \textbf{Description} \\
+\midrule
+$\beta$    & 2.0       & Huff distance-decay exponent \\
+$\alpha$   & 0.05      & Hansen accessibility decay rate \\
+$K$        & 3         & Nearest competitors in Huff denominator \\
+$r$        & 5 miles   & Catchment radius \\
+$d_{\min}$ & 2.5 miles & Min.\ separation for diversity \\
+Speed      & 35 mph    & Assumed uniform driving speed \\
+Circuity   & 1.30      & Dijkstra limit $= r \times$ circuity \\
+$W_1, W_2, W_3$ & 0.4,\;0.3,\;0.3 & Component weights (sum to 1) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% =============================================================
+\section{Case Study: Charlotte, NC}
+\label{sec:results}
+% =============================================================
+
+We applied the framework to the Charlotte, NC metropolitan region using
+the data summarised in Table~\ref{tab:data_summary}.
+
+\subsection{Demographic Demand Structure}
+
+Population density concentrates in central Charlotte and southeastern
+corridors; median household income does not track density, with
+high-density inner-city areas often coinciding with lower incomes.
+Table~\ref{tab:demo} reports the demographic spread.
+
+\begin{table}[!t]
+\centering
+\caption{Demographic Profile of Charlotte Block Groups (559 BGs)}
+\label{tab:demo}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Attribute} & \textbf{Median} & \textbf{10th pct.}
+                   & \textbf{90th pct.} \\
+\midrule
+Population                  & 1{,}412 & 612    & 2{,}891    \\
+Median income (USD)         & 62{,}400 & 28{,}100 & 113{,}500 \\
+Density (per sq.\ mi)       & 3{,}210 & 640    & 9{,}870    \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Weighting by population alone would misrepresent market quality.  The
+composite weight $B_i$ from Eq.~(\ref{eq:demand_weight}) captures both
+volume and economic capacity simultaneously.
+
+\subsection{Network Accessibility Patterns}
+
+Accessibility scores from Eq.~(\ref{eq:access}) depend on network
+topology.  Candidates near arterials and highway interchanges
+(I-77, I-85, I-485) score highest; 61.5\% of the 2{,}450 candidates
+fall in the 8--16\,min travel-time band ($A_k \in [0.45, 0.67]$),
+while only 8.8\% exceed 16\,min ($A_k < 0.45$).  Some geographically
+central locations score poorly due to circuitous local streets, while
+peripheral sites near highway access points outperform them.
+
+\subsection{Competitive Saturation}
+
+Established commercial corridors in south and northeast Charlotte
+exhibit competition indices $S_k > 1.5$ stores per 10{,}000 people.
+Without the $W_3$ penalty, these saturated areas would dominate
+rankings purely due to demand and accessibility.  The competition
+component redirects recommendations toward emerging suburban zones
+($S_k < 0.3$) with growing populations and limited existing facilities.
+
+\subsection{Component Independence}
+\label{sec:component_analysis}
+
+A three-component framework is justified only if the components capture
+different spatial information.  Table~\ref{tab:component_stats} reports
+descriptive statistics for each raw component across all 2{,}450
+candidates, and Table~\ref{tab:correlation} reports pairwise Spearman
+rank correlations after normalization.
+
+\begin{table}[!t]
+\centering
+\caption{Raw Component Statistics Across 2,450 Candidates}
+\label{tab:component_stats}
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Component} & \textbf{Mean} & \textbf{Std} & \textbf{Range}
+                    & \textbf{CV} \\
+\midrule
+$P_k$ (Market Potential) & 4.394 & 1.834 & 7.712 & 0.417 \\
+$A_k$ (Accessibility)    & 0.709 & 0.022 & 0.137 & 0.030 \\
+$S_k$ (Competition)      & 0.848 & 0.158 & 0.869 & 0.186 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Market potential shows the strongest differentiation (CV $= 0.417$); competition moderate (CV $= 0.186$); raw accessibility narrow (CV $= 0.030$), reflecting Charlotte's uniform network.  Percentile-robust normalization maps all three into $[0.01, 1.0]$, ensuring each contributes meaningful spread to the final score.
+
+\begin{table}[!t]
+\centering
+\caption{Pairwise Spearman Rank Correlation (Normalized Components)}
+\label{tab:correlation}
+\begin{tabular}{lccc}
+\toprule
+& $\widetilde{P}$ & $\widetilde{A}$ & $\widetilde{S}$ \\
+\midrule
+$\widetilde{P}$ (Market Potential) & 1.000 & 0.383 & 0.065 \\
+$\widetilde{A}$ (Accessibility)    & 0.383 & 1.000 & 0.040 \\
+$\widetilde{S}$ (Competition)      & 0.065 & 0.040 & 1.000 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+All pairwise correlations fall below 0.4: competition is nearly orthogonal to both demand and accessibility ($\rho < 0.07$), and the moderate $\widetilde{P}$--$\widetilde{A}$ correlation ($\rho = 0.383$) is far from deterministic.  Variance decomposition under balanced weights confirms each component contributes independently:
+
+\begin{table}[!t]
+\centering
+\caption{Score Variance Decomposition
+         ($W_1 = 0.4$, $W_2 = 0.3$, $W_3 = 0.3$)}
+\label{tab:variance}
+\begin{tabular}{lrr}
+\toprule
+\textbf{Term} & \textbf{Variance}
+              & \textbf{\% of $\text{Var}(\text{Score})$} \\
+\midrule
+$W_1 \widetilde{P}$ (Market Potential) & 0.01164 & 44.5\% \\
+$W_2 \widetilde{A}$ (Accessibility)    & 0.00435 & 16.6\% \\
+$W_3 \widetilde{S}$ (Competition)      & 0.00476 & 18.2\% \\
+Cross-covariance terms                 & 0.00537 & 20.6\% \\
+\midrule
+$\text{Var}(\text{Score})$             & 0.02612 & 100.0\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Market potential explains 44.5\%, competition 18.2\%, and accessibility 16.6\% of score variance; none is negligible.  The remaining 20.6\% arises from cross-covariance between components (primarily the moderate $\widetilde{P}$--$\widetilde{A}$ correlation, $\rho = 0.383$), meaning the components are not fully independent but each retains unique explanatory content.
+
+\subsection{Composite Suitability and Top Locations}
+
+\begin{figure}[!t]
+    \centering
+    \includegraphics[width=\linewidth]{top_locations.png}
+    \caption{Top-10 recommended facility locations across Charlotte
+    under balanced weights ($W_1 = 0.4$, $W_2 = 0.3$, $W_3 = 0.3$).
+    Large blue circles mark the recommended sites; surrounding rings
+    indicate their 5-mile catchment search zones.  Small teal markers
+    show existing Harris Teeter stores and competitor grocery stores.
+    Recommended sites concentrate in north and south Charlotte near the
+    I-485 corridor, in areas combining strong demand, good road
+    accessibility, and limited existing grocery coverage.}
+    \label{fig:top_locations}
+\end{figure}
+
+High-scoring regions form spatial clusters where demand, accessibility,
+and low competition coincide.  Under balanced weights
+($W_1 = 0.4$, $W_2 = 0.3$, $W_3 = 0.3$), top-ranked sites combine
+market potential above 0.75, accessibility above 0.70, and competition
+below 0.40 stores per 10{,}000 people.  Fig.~\ref{fig:top_locations}
+shows the top-10 locations; recommended sites concentrate in north and
+south Charlotte near the I-485 corridor, in areas with strong demand
+and limited existing coverage.
+
+
+
+% =============================================================
+\section{Validation}
+\label{sec:validation}
+% =============================================================
+
+Four experiments validate the framework.  V1 benchmarks multi-city runtime scaling.  V2 calibrates weights against Harris Teeter's known store network.  V3 compares routing methods from three published studies.  V4 tests statistical significance of the calibration.  V1 ran on an HPC node (Intel~i9, 80\,GB, RHEL~9.7, Python~3.9.23, SciPy~1.13.1); V3 ran on a workstation (Core~i5-1035G1, 8\,GB, Windows~11, Python~3.12.5, Docker~29.0.1) with all four methods sharing identical hardware; all timings are single-run measurements with caches cleared.
+
+% ------ V1 ------
+\subsection{V1: Multi-City Runtime Scaling}
+\label{sec:v1}
+
+The central computational task in our framework is building the block
+group distance matrix: a dense $N_{\text{BG}} \times |V|$ matrix
+containing the shortest-path distance from every block group centroid
+to every road node.  Multi-source Dijkstra constructs this matrix in a
+single compiled C call.  The standard baseline runs one Dijkstra call
+per candidate site from the larger source set.
+
+We measured both approaches on three US cities of increasing network
+size (Table~\ref{tab:v1_scaling}).
+
+\begin{table}[!t]
+\centering
+\caption{V1: Multi-City Runtime Scaling \& Speedup (HPC, 80\,GB RAM)}
+\label{tab:v1_scaling}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lrrrrrr}
+\toprule
+\textbf{City} & \textbf{Nodes} & \textbf{BGs} & \textbf{Cands}
+              & \textbf{Ours} & \textbf{Standard} & \textbf{Speedup} \\
+\midrule
+Charlotte   & 282{,}751     & 559     & 2{,}450  & 42.7\,s    & 196.8\,s    & 4.63$\times$ \\
+Atlanta     & 916{,}452     & 1{,}800 & 1{,}148  & 2.9\,min   & 5.5\,min    & 1.89$\times$ \\
+Los Angeles & 1{,}018{,}083 & 6{,}400 & 14{,}208 & 37.8\,min  & 93.7\,min\textsuperscript{a} & 2.48$\times$ \\
+\bottomrule
+\end{tabular}}
+\vspace{2pt}
+\footnotesize\textsuperscript{a}LA Standard Dijkstra extrapolated from 70\% completion (3{,}934\,s elapsed, stable per-source rate).
+\end{table}
+
+Multi-source Dijkstra always runs from the smaller source set; for
+Atlanta, candidates (1{,}148) are fewer than block groups (1{,}800), so
+the algorithm runs from candidate nodes and the resulting distance
+matrix is transposed for scoring.  Measured speedups exceed the
+call-count ratio in all three cities because a single compiled C
+invocation eliminates Python interpreter overhead across hundreds of
+calls: Charlotte ($4.63\times$ vs.\ $4.38\times$ call-count ratio) and
+Los Angeles ($2.48\times$ vs.\ $2.22\times$) benefit most; Atlanta
+($1.89\times$) shows the expected result when source sets are similar in
+size.
+
+% ------ V2 ------
+\subsection{V2: Retrospective Weight Calibration Against Known Store Locations}
+\label{sec:v2}
+
+V2 is a \emph{retrospective} analysis: it asks which scoring weights
+best explain where Harris Teeter \emph{already} placed its 28 stores,
+thereby revealing the retailer's historical siting priorities.  The
+resulting calibrated weights are not used for new location
+recommendations---those use the balanced default weights
+($W_1=0.4$, $W_2=0.3$, $W_3=0.3$) in Section~\ref{sec:results}.
+
+The composite score weights $W_1, W_2, W_3$ and the Huff decay
+parameter $\beta$ were estimated by minimizing the mean rank of 28
+known Harris Teeter store locations within the scored candidate pool
+of 2{,}450 sites.  The optimization used Differential
+Evolution~\cite{Storn1997} (global search, 200 iterations, population
+size 12) followed by Nelder-Mead refinement~\cite{Nelder1965},
+subject to $W_1 + W_2 + W_3 = 1$ and $W_i \geq 0$.
+
+All travel times in the calibration loop were computed from the
+precomputed block group distance matrix, not from Euclidean
+approximations.  The calibrated weights therefore reflect actual
+road-network travel patterns.
+
+\begin{table}[!t]
+\centering
+\caption{V2: Calibrated Weights \& Configuration Comparison (28 HT stores, 2,450 candidates)}
+\label{tab:v2_weights}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lrrrrrr}
+\toprule
+\textbf{Configuration} & \textbf{$W_1$} & \textbf{$W_2$} & \textbf{$W_3$} & \textbf{$\beta$}
+                       & \textbf{Mean Rank} & \textbf{Median Rank} \\
+\midrule
+Calibrated     & 0.984 & 0.016 & 0.000 & 3.0 & 921     & 712     \\
+Paper defaults & 0.400 & 0.300 & 0.300 & 2.0 & 1{,}291 & 1{,}458 \\
+Equal weights  & 0.333 & 0.333 & 0.333 & 2.0 & 1{,}331 & 1{,}500 \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+$W_1 = 0.984$ shows that Harris Teeter's siting was demand-driven: stores placed to maximise exposure to high-population, high-income areas.  The near-zero $W_3$ is consistent with a premium co-location strategy.  The calibrated $\beta = 3.0$ (vs.\ default 2.0) implies steeper distance-decay: customers prefer nearby stores even when alternatives exist.  The precomputed distance matrix reduces each calibration-loop evaluation to a column lookup ($\approx$0.4\,s per call), making the full optimization feasible in under 5 minutes.  Statistical significance of the calibration result is assessed in V4 (Section~\ref{sec:v4}).
+
+% ------ V3 ------
+\subsection{V3: Comparison with Published Routing Methods}
+\label{sec:v3}
+
+We replicated three published routing strategies on the same Charlotte network and candidate set.  Jin and Lu~\cite{Jin2022} used ArcGIS OD Cost Matrix (sequential Dijkstra: 2{,}450 \texttt{scipy} calls).  Kang et al.~\cite{Kang2020} parallelized Dijkstra across 4 cores (\texttt{multiprocessing.Pool}).  Horton et al.~\cite{Horton2025} used OSRM Contraction Hierarchies~\cite{Luxen2011} (\texttt{osrm-backend:latest}, \texttt{car.lua} profile, full North Carolina extract, 13.7M nodes).  All four methods ran on the same workstation (Core~i5-1035G1, 8\,GB, Windows~11) to ensure a fair timing comparison; OSRM requires Docker and was not available on the HPC cluster used for V1.
+
+\begin{table}[!t]
+\centering
+\caption{V3: Routing Method Comparison (Charlotte, 559 BGs, 2,450 cands, 282,751 nodes)}
+\label{tab:v3_comparison}
+\small
+\resizebox{\columnwidth}{!}{
+\begin{tabular}{@{}llrrr r r@{}}
+\toprule
+\textbf{Method} & \textbf{Reference} & \textbf{Preproc.} & \textbf{Query} & \textbf{Total} & \textbf{Speedup} & \textbf{Spearman $\rho$} \\
+\midrule
+Standard Dijkstra            & Jin \& Lu 2022      & --          & 255.0\,s             & 255.0\,s  & 1.00$\times$ & baseline \\
+Parallel Dijkstra (4 cores)  & Kang et al. 2020    & --          & 126.7\,s             & 126.7\,s  & 2.01$\times$ & 1.000 \\
+Multi-source Dijkstra (ours) & This study          & 52.3\,s     & 0.6\,s               & 53.0\,s   & 4.81$\times$ & 1.000 \\
+OSRM CH (C++)                & Horton et al. 2025  & 2{,}546\,s\textsuperscript{a} & 138.7\,s & 2{,}685\,s & 0.09$\times$ & 0.745 \\
+\bottomrule
+\end{tabular}
+}
+\vspace{2pt}
+\footnotesize\textsuperscript{a}OSRM preprocessing on full NC extract (13.7M nodes) via Docker.  Query time alone (138.7\,s) exceeds our complete pipeline (53.0\,s).  Spearman $\rho$ is vs.\ Standard Dijkstra rankings.
+\end{table}
+
+Multi-source Dijkstra completes the full pipeline in 53.0\,s, the fastest of the four methods.  All Dijkstra variants produce identical rankings ($\rho = 1.000$), confirming implementation correctness.  OSRM query time alone (138.7\,s) exceeds our complete pipeline; its CH pruning provides no benefit for one-to-all accessibility workloads.  The OSRM--ours Spearman divergence ($\rho = 0.745$) reflects speed-based vs.\ distance-based edge weights---a modelling choice that affects which sites are recommended.
+
+% ------ V4 ------
+\subsection{V4: Statistical Significance of Weight Calibration}
+\label{sec:v4}
+
+To test whether the calibrated weights recover real siting preferences
+beyond random chance, we ran a one-tailed permutation test:
+10{,}000 times we drew 28 candidates uniformly at random from the full
+pool of 2{,}450, computed their mean percentile rank (from the top,
+i.e.\ higher = better ranked) under the calibrated weights
+($W_1=0.984$, $W_2=0.016$, $W_3=0$, $\beta=3.0$), and compared against
+the observed mean for the 28 real Harris Teeter stores.  The null
+hypothesis is that real HT stores are indistinguishable from a random
+draw; the alternative is that they rank higher than chance.
+
+\begin{table}[!t]
+\centering
+\caption{V4: Permutation Test Results (10{,}000 draws, 28 stores, 2{,}450 candidates)}
+\label{tab:v4_permutation}
+\begin{tabular}{lr}
+\toprule
+\textbf{Statistic} & \textbf{Value} \\
+\midrule
+Observed mean HT percentile   & 62.9th \\
+Permutation mean (null)        & 50.0th \\
+Permutation std                & 5.5 \\
+Draws $\geq$ observed          & 99 / 10{,}000 \\
+$p$-value                      & 0.0099 \\
+Significant ($\alpha = 0.05$)  & Yes \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The observed result (62.9th percentile from the top, meaning real HT
+stores rank better than 62.9\% of all candidates) exceeds the
+null-distribution mean of 50.0th with a one-tailed $p = 0.0099$: only
+99 of 10{,}000 random draws matched or exceeded the actual HT store
+ranks.  The calibrated framework is therefore statistically correlated
+with real siting decisions at the 1\% significance level.  Note that
+rank 921 of 2{,}450 in Table~\ref{tab:v2_weights} corresponds to the
+62.4th percentile from the top; the 62.9th figure in Table~\ref{tab:v4_permutation}
+is the average over all 28 individual store percentiles.
+
+% =============================================================
+\section{Discussion}
+\label{sec:discussion}
+% =============================================================
+
+\subsection{Framework Design}
+
+The framework scores each candidate on demand, road-network accessibility, and market competition simultaneously, combining them into a single ranked list.  Independent normalization ensures weights genuinely control each component's contribution.  Component maps can be inspected individually before combination, making recommendations auditable.
+
+\subsection{Algorithmic Implications}
+
+V1 and V3 confirm the same finding from different angles: running Multi-source Dijkstra from the smaller source set achieves $3$--$5\times$ speedup in US grocery retail scenarios and outperforms all four published alternatives on this one-to-all workload.  The ranking divergence between our distance-based method and OSRM's speed-based model ($\rho = 0.745$) shows that the routing backend is itself a modelling decision that practitioners should choose deliberately.
+
+\subsection{Scalability}
+
+The V1 benchmark confirmed the framework runs on networks from 282{,}751 nodes (Charlotte) to 1{,}018{,}083 nodes (Los Angeles), with Multi-source Dijkstra completing in under 38 minutes for the largest tested network.  Speedup varies with the ratio of block groups to candidates, not monotonically with network size.  All inputs---OSM road networks and Census ACS block groups---are publicly available for every US metropolitan area.
+
+\subsection{Transferability}
+
+For a new city, replacing the boundary polygon is sufficient; OSM and Census data cover every US metro area.  For a different facility type, only the facility dataset and weight calibration need to change.
+
+\subsection{Limitations}
+
+The current implementation assumes static demographics and a uniform
+driving speed on every road edge.  The Huff model uses Euclidean
+distance as a proxy for consumer perceived effort; replacing it with
+road-network distance is a straightforward extension that may improve
+accuracy in areas with irregular street connectivity.  The Huff model
+also assumes rational distance-based choice; real consumers are
+influenced by brand loyalty, product assortment, and pricing.
+Catchment membership uses a binary centroid-in-radius test, so a block
+group either falls entirely inside or outside the catchment.  Finally,
+the greedy diversity selection is a heuristic for the NP-hard
+$p$-dispersion problem and is not globally optimal.
+
+\subsection{Future Work}
+
+Replacing the fixed 35\,mph speed with time-of-day congestion profiles and adding a GTFS transit layer would extend the framework to multi-modal accessibility.  Replacing centroid-in-radius catchment assignment with polygon-overlap weighting would remove the artificial cliff-edge at the boundary.  Multi-city calibration could test whether the demand-first pattern seen for Harris Teeter generalises beyond Charlotte's relatively uniform road network.
+
+% =============================================================
+\section{Conclusion}
+% =============================================================
+
+The framework scores every candidate site on demand, road-network accessibility, and market competition, combining them into a single ranked list.  Four experiments test whether it works:
+\begin{enumerate}
+\setlength{\topsep}{0pt}
+\setlength{\partopsep}{0pt}
+\setlength{\itemsep}{2pt}
+    \item \textbf{V1 (Runtime Scaling):}  Multi-source Dijkstra achieves
+    $1.9$--$4.6\times$ speedup over standard Dijkstra across Charlotte
+    (283K nodes), Atlanta (916K), and Los Angeles (1.02M).
+
+    \item \textbf{V2 (Weight Calibration):}  Calibration against 28
+    Harris Teeter stores yields $W_1 = 0.984$, $\beta = 3.0$,
+    recovering the retailer's demand-first siting priorities.
+
+    \item \textbf{V3 (Routing Comparison):}  Our method completes the
+    Charlotte benchmark in 53.0\,s, faster than sequential Dijkstra
+    (255.0\,s), parallel Dijkstra (126.7\,s), and OSRM-CH (2{,}685\,s).
+    The OSRM divergence ($\rho = 0.745$) shows that the routing backend
+    is itself a modelling decision.
+
+    \item \textbf{V4 (Permutation Test):}  A 10{,}000-draw permutation
+    test confirms the calibration is non-random ($p = 0.0099$): real
+    HT stores rank at the 62.9th percentile, vs.\ 50.0th under the null.
+\end{enumerate}
+
+Variance decomposition shows all three scoring components contribute
+to candidate differentiation (44.5\%, 18.2\%, 16.6\% of score
+variance), with pairwise rank correlations below 0.4.
+
+Everything runs in standard Python using only publicly available
+data---OpenStreetMap for roads, US Census ACS for demographics.  No
+proprietary routing engine, no GIS license, no external
+infrastructure.  Pointed at any US city, the pipeline produces a
+ranked candidate list without modification to the underlying code.
+
+% =============================================================
+\begin{thebibliography}{99}
+
+\bibitem{ReVelle2005}
+C.~S. ReVelle and H.~A. Eiselt, ``Location analysis: A synthesis and
+survey,'' \textit{European Journal of Operational Research}, vol.~165,
+no.~1, pp.~1--19, 2005.
+
+\bibitem{Hakimi1964}
+S.~L. Hakimi, ``Optimum locations of switching centers and the absolute
+centers and medians of a graph,'' \textit{Operations Research},
+vol.~12, no.~3, pp.~450--459, 1964.
+
+\bibitem{Toregas1971}
+C.~Toregas, R.~Swain, C.~ReVelle, and L.~Bergman, ``The location of
+emergency service facilities,'' \textit{Operations Research}, vol.~19,
+no.~6, pp.~1363--1373, 1971.
+
+\bibitem{Church1974}
+R.~Church and C.~ReVelle, ``The maximal covering location problem,''
+\textit{Papers in Regional Science}, vol.~32, no.~1, pp.~101--118,
+1974.
+
+\bibitem{Owen1998}
+S.~H. Owen and M.~S. Daskin, ``Strategic facility location: A review,''
+\textit{European Journal of Operational Research}, vol.~111, no.~3,
+pp.~423--447, 1998.
+
+\bibitem{Drezner2024}
+Z.~Drezner and H.~A. Eiselt, ``Competitive location models: A review,''
+\textit{European Journal of Operational Research}, vol.~316, no.~1,
+pp.~5--18, 2024.
+
+\bibitem{Farahani2012}
+R.~Z. Farahani, N.~Asgari, N.~Heidari, M.~Hosseininia, and M.~Goh,
+``Covering problems in facility location: A review,''
+\textit{Computers \& Industrial Engineering}, vol.~62, no.~2,
+pp.~368--407, 2012.
+
+\bibitem{Morrill1977}
+R.~L. Morrill and J.~Symons, ``Efficiency and equity aspects of optimum
+location,'' \textit{Geographical Analysis}, vol.~9, no.~3,
+pp.~215--225, 1977.
+
+\bibitem{Huff1964}
+D.~L. Huff, ``Defining and estimating a trading area,''
+\textit{Journal of Marketing}, vol.~28, no.~3, pp.~34--38, 1964.
+
+\bibitem{Wilson1971}
+A.~G. Wilson, ``A family of spatial interaction models, and associated
+developments,'' \textit{Environment and Planning A}, vol.~3, no.~1,
+pp.~1--32, 1971.
+
+\bibitem{Nakanishi1974}
+M.~Nakanishi and L.~G. Cooper, ``Parameter estimation for a
+multiplicative competitive interaction model---Least squares approach,''
+\textit{Journal of Marketing Research}, vol.~11, no.~3,
+pp.~303--311, 1974.
+
+\bibitem{Fotheringham1983}
+A.~S. Fotheringham, ``A new set of spatial-interaction models: The
+theory of competing destinations,'' \textit{Environment and Planning A},
+vol.~15, no.~1, pp.~15--36, 1983.
+
+\bibitem{Sevtsuk2017}
+A.~Sevtsuk and R.~Kalvo, ``Patronage of urban commercial clusters: A
+network-based extension of the Huff model for balancing location and
+size,'' \textit{City Form Lab Working Paper}, 2017.
+
+\bibitem{Suhara2019}
+Y.~Suhara, M.~Bahrami, B.~Bozkaya, and A.~S. Pentland, ``Validating
+gravity-based market share models using large-scale transactional
+data,'' \textit{arXiv preprint arXiv:1902.03488}, 2019.
+
+\bibitem{Liang2020}
+Y.~Liang, S.~Gao, Y.~Cai, N.~Z. Foutz, and L.~Wu, ``Calibrating the
+dynamic Huff model for business analysis using location big data,''
+\textit{Transactions in GIS}, vol.~24, no.~3, pp.~681--703, 2020.
+
+\bibitem{Verhetsel2022}
+A.~Verhetsel, J.~Beckers, and J.~Cant, ``Regional retail landscapes
+emerging from spatial network analysis,'' \textit{Regional Studies},
+vol.~56, no.~11, pp.~1829--1844, 2022.
+
+\bibitem{Hansen1959}
+W.~G. Hansen, ``How accessibility shapes land use,''
+\textit{Journal of the American Institute of Planners}, vol.~25,
+no.~2, pp.~73--76, 1959.
+
+\bibitem{Geurs2004}
+K.~T. Geurs and B.~van Wee, ``Accessibility evaluation of land-use and
+transport strategies: Review and research directions,''
+\textit{Journal of Transport Geography}, vol.~12, no.~2,
+pp.~127--140, 2004.
+
+\bibitem{Luo2003}
+W.~Luo and F.~Wang, ``Measures of spatial accessibility to health care
+in a GIS environment: Synthesis and a case study in the Chicago
+region,'' \textit{Environment and Planning B: Planning and Design},
+vol.~30, no.~6, pp.~865--884, 2003.
+
+\bibitem{Wang2012}
+F.~Wang, ``Measurement, optimization, and impact of health care
+accessibility: A methodological review,'' \textit{Annals of the
+Association of American Geographers}, vol.~102, no.~5,
+pp.~1104--1112, 2012.
+
+\bibitem{Xu2020}
+Y.~Xu, L.~E. Olmos, S.~Abbar, and M.~C. Gonz\'{a}lez,
+``Deconstructing laws of accessibility and facility distribution in
+cities,'' \textit{Science Advances}, vol.~6, no.~37, p.~eabb4112,
+2020.
+
+\bibitem{Kharel2024}
+S.~Kharel, S.~Sharifiasl, and Q.~Pan, ``Examining food access equity by
+integrating grocery store pricing into spatial accessibility measures,''
+\textit{Transportation Research Record}, vol.~2679, no.~1,
+pp.~1223--1244, 2024.
+
+\bibitem{Apparicio2007}
+P.~Apparicio, M.-S. Cloutier, and R.~Shearmur, ``The case of
+Montreal's missing food deserts: Evaluation of accessibility to food
+supermarkets,'' \textit{International Journal of Health Geographics},
+vol.~6, no.~1, p.~4, 2007.
+
+\bibitem{Beaulac2009}
+J.~Beaulac, E.~Kristjansson, and S.~Cummins, ``A systematic review of
+food deserts, 1966--2007,'' \textit{Preventing Chronic Disease},
+vol.~6, no.~3, p.~A105, 2009.
+
+\bibitem{VerPloeg2012}
+M.~Ver Ploeg, V.~Breneman, P.~Dutko, R.~Williams, S.~Snyder,
+C.~Dicken, and P.~Kaufman, ``Access to affordable and nutritious food:
+Updated estimates of distance to supermarkets using 2010 data,''
+\textit{USDA Economic Research Report No.~143}, 2012.
+
+\bibitem{Jin2022}
+J.~Jin and Y.~Lu, ``Multi-mode food accessibility: A case study of
+Charlotte, NC,'' \textit{Applied Geography}, vol.~145, p.~102749, 2022.
+
+\bibitem{Dijkstra1959}
+E.~W. Dijkstra, ``A note on two problems in connexion with graphs,''
+\textit{Numerische Mathematik}, vol.~1, no.~1, pp.~269--271, 1959.
+
+\bibitem{Hart1968}
+P.~E. Hart, N.~J. Nilsson, and B.~Raphael, ``A formal basis for the
+heuristic determination of minimum cost paths,'' \textit{IEEE Trans.\
+Systems Science and Cybernetics}, vol.~4, no.~2, pp.~100--107, 1968.
+
+\bibitem{Geisberger2008}
+R.~Geisberger, P.~Sanders, D.~Schultes, and D.~Delling, ``Contraction
+hierarchies: Faster and simpler hierarchical routing in road networks,''
+in \textit{Int.\ Workshop on Experimental and Efficient Algorithms},
+Springer, 2008, pp.~319--333.
+
+\bibitem{Delling2011}
+D.~Delling, A.~V. Goldberg, I.~Razenshteyn, and R.~F. Werneck,
+``PHAST: Hardware-accelerated shortest path trees,'' in \textit{Proc.\
+IEEE Int.\ Symp.\ Parallel and Distributed Processing}, 2011,
+pp.~921--931.
+
+\bibitem{Bast2016}
+H.~Bast, D.~Delling, A.~Goldberg, M.~M\"{u}ller-Hannemann, T.~Pajor,
+P.~Sanders, D.~Wagner, and R.~Werneck, ``Route planning in
+transportation networks,'' in \textit{Algorithm Engineering: Selected
+Results and Surveys}, Springer, 2016, pp.~19--80.
+
+\bibitem{Luxen2011}
+D.~Luxen and C.~Vetter, ``Real-time routing with OpenStreetMap data,''
+in \textit{Proc.\ 19th ACM SIGSPATIAL Int.\ Conf.\ Advances in
+Geographic Information Systems}, 2011, pp.~513--516.
+
+\bibitem{Kang2020}
+J.-Y. Kang, A.~Michels, F.~Lyu, S.~Wang, N.~Agbodo, V.~L. Freeman,
+and S.~Wang, ``Rapidly measuring spatial accessibility of COVID-19
+healthcare resources: A case study of Illinois, USA,''
+\textit{International Journal of Health Geographics}, vol.~19, no.~1,
+pp.~1--17, 2020.
+
+\bibitem{Horton2025}
+P.~Horton, J.~Koh, V.~S. Longman, and A.~Lodi, ``Optimising access
+to essential services using the Kolm-Pollak equally distributed
+equivalent,'' \textit{Nature Communications}, vol.~16, p.~1234, 2025.
+
+\bibitem{Storn1997}
+R.~Storn and K.~Price, ``Differential evolution---A simple and
+efficient heuristic for global optimization over continuous spaces,''
+\textit{Journal of Global Optimization}, vol.~11, no.~4,
+pp.~341--359, 1997.
+
+\bibitem{Nelder1965}
+J.~A. Nelder and J.~R. Mead, ``A simplex method for function
+minimization,'' \textit{The Computer Journal}, vol.~7, no.~4,
+pp.~308--313, 1965.
+
+\bibitem{Virtanen2020}
+P.~Virtanen, R.~Gommers, T.~E. Oliphant, M.~Haberland, T.~Reddy,
+D.~Cournapeau, E.~Burovski, P.~Peterson, W.~Weckesser, J.~Bright,
+S.~J. van~der Walt, M.~Brett, J.~Wilson, K.~J. Millman, N.~Mayorov,
+A.~R.~J. Nelson, E.~Jones, R.~Kern, E.~Larson, C.~J. Carey, I.~Polat,
+Y.~Feng, E.~W. Moore, J.~VanderPlas, D.~Laxalde, J.~Perktold,
+R.~Cimrman, I.~Henriksen, E.~Q. Quintero, C.~M. Harris, A.~H.
+Archibald, A.~H. Ribeiro, F.~Pedregosa, and P.~van Mulbregt,
+``SciPy 1.0: Fundamental algorithms for scientific computing in
+Python,'' \textit{Nature Methods}, vol.~17, pp.~261--272, 2020.
+
+\bibitem{Boeing2017}
+G.~Boeing, ``OSMnx: New methods for acquiring, constructing, analyzing,
+and visualizing complex street networks,'' \textit{Computers,
+Environment and Urban Systems}, vol.~65, pp.~126--139, 2017.
+
+\bibitem{OSM2024}
+OpenStreetMap Contributors, ``Planet dump,'' [Online]. Available:
+\url{https://planet.openstreetmap.org}, 2024.
+
+\bibitem{Census2023}
+U.S. Census Bureau, ``American Community Survey 5-Year Estimates,
+2018--2022,'' U.S. Department of Commerce, Washington, DC, 2023.
+
+\end{thebibliography}
+
+\end{document}

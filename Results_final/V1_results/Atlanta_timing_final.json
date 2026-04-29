@@ -1,0 +1,18 @@
+{
+  "city": "Atlanta",
+  "n_road_nodes": 916452,
+  "n_road_edges": 1903720,
+  "n_candidates": 1148,
+  "n_bg_sources": 1800,
+  "multisource_time_s": 283.42,
+  "std_measured_s": 551.69,
+  "std_is_fully_measured": true,
+  "speedup": 1.95,
+  "smart_sources": 1148,
+  "naive_sources": 1800,
+  "n_sources": 1148,
+  "n_chunks": 11,
+  "per_dijkstra_run_s": 0.3065,
+  "available_ram_gb": 1.5,
+  "full_matrix_gb": 7.8
+}

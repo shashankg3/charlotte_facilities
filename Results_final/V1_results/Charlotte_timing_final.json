@@ -1,0 +1,18 @@
+{
+  "city": "Charlotte",
+  "n_road_nodes": 282751,
+  "n_road_edges": 585666,
+  "n_candidates": 2450,
+  "n_bg_sources": 559,
+  "multisource_time_s": 49.97,
+  "std_measured_s": 219.57,
+  "std_is_fully_measured": true,
+  "speedup": 4.39,
+  "smart_sources": 559,
+  "naive_sources": 2450,
+  "n_sources": 559,
+  "n_chunks": 6,
+  "per_dijkstra_run_s": 0.0896,
+  "available_ram_gb": 0.5,
+  "full_matrix_gb": 1.2
+}

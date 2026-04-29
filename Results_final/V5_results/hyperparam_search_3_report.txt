@@ -1,0 +1,39 @@
+V5 HYPERPARAM SEARCH 3 — Fine Grid + LOOCV — Harris Teeter Charlotte
+=================================================================
+
+METHOD: Fine coarse grid → LOOCV validation
+  Stage A: fine Huff grid (mean-pct), top-20 forwarded to LOOCV
+  Stage B: LOOCV on top-20 Huff combos → confirmed (r,b,K)
+  Stage C: fine weight grid at best (r,b,K)
+  Stage D: LOOCV on top-10 weight combos → final params
+
+LOOCV INTERPRETATION
+  For each real HT store, we hide it and check
+  if the model still ranks it highly. A high LOOCV score
+  means the model generalises — it's not just memorising
+  the existing stores.
+
+FINAL RESULT
+  radius=4.0mi  beta=3.5  K=6
+  W1=0.7 (Huff demand)  W2=0.1 (Dijkstra)  W3=0.2 (Comp penalty)
+  Mean percentile rank : 62.327th  (all stores)
+  LOOCV percentile rank: 64.706th  (held-out validation)
+
+COMPARISON
+  search_1 (mean-pct only)       : 60.63th
+  search_2 (coordinate descent)  : 60.958th
+  search_3 (LOOCV-validated)     : 64.706th
+
+TOP-10 WEIGHT COMBOS (LOOCV-ranked)
+  Rank     W1    W2    W3   MeanPct    LOOCV
+  ---------------------------------------------
+  1      0.70  0.10  0.20    61.547   64.706
+  2      0.60  0.10  0.30    59.112   64.521
+  3      0.70  0.20  0.10    62.327   63.669
+  4      0.60  0.20  0.20    60.232   63.648
+  5      0.50  0.20  0.30    57.542   63.358
+  6      0.60  0.30  0.10    61.429   62.851
+  7      0.50  0.30  0.20    59.001   62.157
+  8      0.50  0.40  0.10    60.223   61.817
+  9      0.40  0.30  0.30    55.865   61.586
+  10     0.40  0.40  0.20    57.487   61.015

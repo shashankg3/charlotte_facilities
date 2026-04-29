@@ -1,0 +1,11 @@
+{
+  "source": "V5_hyperparam_search_3_loocv",
+  "radius_miles": 5.5,
+  "beta": 3.5,
+  "K": 6,
+  "W1": 0.1,
+  "W2": 0.05,
+  "W3": 0.85,
+  "mean_pct_rank": 66.691,
+  "loocv_pct_rank": 72.251
+}

@@ -1,0 +1,48 @@
+=====================================================================================
+  MULTI-SOURCE DIJKSTRA SCALING BENCHMARK  --  V1 RESULTS
+  Hardware : HPC gal-i9 cluster, Red Hat Enterprise Linux
+  RAM      : 80 GB specified, 68 GB used (85% headroom)
+  Python   : 3.9.23  |  scipy multi-source Dijkstra (scipy.sparse.csgraph.dijkstra)
+  All cities run sequentially, each with the FULL 68 GB RAM budget (fair comparison)
+=====================================================================================
+
+  GRAPH SIZES
+  -----------
+  City           Nodes        Edges        BG Sources   Candidates   Matrix (GB)  Chunks
+  ------------   ----------   ----------   ----------   ----------   -----------  ------
+  Charlotte         282,751      585,666          559        2,450          1.18       1
+  Atlanta           916,452    1,903,720        1,800        1,148          7.84       1
+  Los Angeles     1,018,083    2,190,272        6,400       14,208         48.55       1
+
+  TIMING RESULTS
+  --------------
+  City           Multi-Source       Standard Dijkstra     Speedup   Std Measured?
+  ------------   ----------------   -------------------   -------   -------------
+  Charlotte           42.7s (0.7 min)      196.8s (3.3 min)    4.63x   YES (fully)
+  Atlanta            174.0s (2.9 min)      328.6s (5.5 min)    1.89x   YES (fully)
+  Los Angeles       2268.0s (37.8 min)    5620.6s (93.7 min)*  2.48x*  NO (70%)*
+
+  * Los Angeles Standard Dijkstra was interrupted (Ctrl+C) at 70% progress
+    (9,940 / 14,208 sources done, 3,934.4s elapsed).
+    Extrapolated total: 3934.4 / 0.70 = 5,620.6s = 93.7 min
+    Per-source rate was stable throughout: 0.3959 s/source
+
+  KEY OBSERVATIONS
+  ----------------
+  1. Multi-source Dijkstra visits ALL nodes once regardless of source count.
+     Standard Dijkstra repeats a full graph traversal for EVERY source.
+
+  2. Charlotte speedup (4.63x): 2,450 standard runs vs 1 multi-source run.
+     Theoretical speedup = 2450/559 = 4.38x -- actual 4.63x (close match).
+
+  3. Atlanta speedup (1.89x): smart direction swap used --
+     multi-source ran from 1,148 candidates (< 1,800 BGs), then transposed.
+     Theoretical speedup = 1800/1148 = 1.57x -- actual 1.89x (super-linear
+     due to graph structure, fewer sources = less memory bandwidth pressure).
+
+  4. Los Angeles speedup (~2.48x): 6,400 BG sources vs 14,208 candidates.
+     Theoretical speedup = 14208/6400 = 2.22x -- actual ~2.48x (consistent).
+
+  5. All cities fit in a single chunk (no overhead) -- fully fair comparison.
+
+=====================================================================================

@@ -1,0 +1,37 @@
+V5 HYPERPARAM SEARCH 3 -- Fine Grid + LOOCV -- Food Lion Charlotte
+=================================================================
+
+METHOD: Fine coarse grid -> LOOCV validation
+  Stage A: fine Huff grid (mean-pct), top-20 forwarded to LOOCV
+  Stage B: LOOCV on top-20 Huff combos -> confirmed (r,b,K)
+  Stage C: fine weight grid at best (r,b,K)
+  Stage D: LOOCV on top-10 weight combos -> final params
+
+LOOCV INTERPRETATION
+  For each of the 27 real FL stores, we hide it and check
+  if the model still ranks it highly. High LOOCV = generalises.
+
+FINAL RESULT
+  radius=5.5mi  beta=3.5  K=6
+  W1=0.1 (Huff demand)  W2=0.05 (Dijkstra)  W3=0.85 (Comp penalty)
+  Mean percentile rank : 66.691th  (all stores)
+  LOOCV percentile rank: 72.251th  (held-out validation)
+
+COMPARISON
+  search_1 (mean-pct only)      : 63.38th
+  search_2 (coordinate descent) : 64.84th
+  search_3 (LOOCV-validated)    : 72.251th
+
+TOP-10 WEIGHT COMBOS (LOOCV-ranked)
+  Rank     W1    W2    W3   MeanPct    LOOCV
+  ---------------------------------------------
+  1      0.10  0.05  0.85    66.691   72.251
+  2      0.10  0.10  0.80    66.442   71.981
+  3      0.20  0.05  0.75    66.610   71.643
+  4      0.10  0.15  0.75    65.860   71.477
+  5      0.20  0.10  0.70    66.016   71.024
+  6      0.10  0.20  0.70    65.034   70.820
+  7      0.30  0.05  0.65    66.024   70.570
+  8      0.20  0.15  0.65    65.204   70.374
+  9      0.30  0.10  0.60    65.284   69.776
+  10     0.40  0.05  0.55    65.259   69.323

@@ -1,0 +1,1832 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_01",
+        "brand": "Harris Teeter",
+        "name": "Harris Teeter",
+        "address": "3333 Pineville Matthews Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28226",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 3333, Pineville-Matthews Road, Charlotte, Mecklenburg County, North Carolina, 28226, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.7845157,
+          35.0963538
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_02",
+        "brand": "Harris Teeter",
+        "name": "Harris Teeter",
+        "address": "15007 John J Delaney Dr",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28277",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 15007, John J Delaney Drive, Ballantyne Commons East, Ballantyne, Charlotte, Mecklenburg County, North Carolina, 28277, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.8490417,
+          35.0530618
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_03",
+        "brand": "Harris Teeter",
+        "name": "Harris Teeter",
+        "address": "4821 Berewick Town Center Dr",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28278",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 4821, Berewick Town Center Drive, Berewick Town Center, Charlotte, Mecklenburg County, North Carolina, 28278, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.9730535,
+          35.1605052
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_04",
+        "brand": "Harris Teeter",
+        "name": "Harris Teeter",
+        "address": "9720 Rea Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28277",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 9720, Rea Road, Blakeney, Charlotte, Mecklenburg County, North Carolina, 28277, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.8067753,
+          35.0363385
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_05",
+        "brand": "Harris Teeter",
+        "name": "Harris Teeter",
+        "address": "9641 Brookdale Dr",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28215",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 9641, Brookdale Drive, Brookdale, Charlotte, Cabarrus County, North Carolina, 28215, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.6694317,
+          35.2828491
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_06",
+        "brand": "Harris Teeter",
+        "name": "Harris Teeter",
+        "address": "1704 Central Ave",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28205",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 1704, Central Avenue, Plaza Midwood, Charlotte, Mecklenburg County, North Carolina, 28205, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.8103713,
+          35.2196701
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_07",
+        "brand": "Harris Teeter",
+        "name": "Harris Teeter",
+        "address": "2720 W Mallard Creek Church Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28262",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 2720, West Mallard Creek Church Road, Mallard, Charlotte, Mecklenburg County, North Carolina, 28262, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.7648953,
+          35.3415097
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_08",
+        "brand": "Harris Teeter",
+        "name": "Harris Teeter",
+        "address": "7823 Colony Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28226",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 7823, Colony Road, Charlotte, Mecklenburg County, North Carolina, 28226, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.806589,
+          35.1064397
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_09",
+        "brand": "Harris Teeter",
+        "name": "Harris Teeter",
+        "address": "112 S Sharon Amity Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28211",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 112, South Sharon Amity Road, Cotswold, Charlotte, Mecklenburg County, North Carolina, 28211, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.8008962,
+          35.1772917
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_10",
+        "brand": "Harris Teeter",
+        "name": "Harris Teeter",
+        "address": "325 W 6th St",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28202",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 325, West 6th Street, Fourth Ward, Uptown, Charlotte, Mecklenburg County, North Carolina, 28202, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.8438879,
+          35.2311074
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_11",
+        "brand": "Harris Teeter",
+        "name": "Harris Teeter",
+        "address": "5810 Highland Shoppes Dr",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28269",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 5810, Highland Shoppes Drive, The Maxwell at Highland, The Shoppes at Highland Creek, Charlotte, Mecklenburg County, North Carolina, 28269, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.7828056,
+          35.3716618
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_12",
+        "brand": "Harris Teeter",
+        "name": "Harris Teeter",
+        "address": "1227 East Blvd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28203",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 1227, East Boulevard, Dilworth Historic District, Charlotte, Mecklenburg County, North Carolina, 28203, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.8447502,
+          35.2036741
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_13",
+        "brand": "Harris Teeter",
+        "name": "Harris Teeter",
+        "address": "5706 Wyalong Dr",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28227",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 5706, Wyalong Drive, Charlotte, Mecklenburg County, North Carolina, 28227, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.7090922,
+          35.1729474
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_14",
+        "brand": "Harris Teeter",
+        "name": "Harris Teeter",
+        "address": "6701 Carnegie Blvd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28211",
+        "role": "validation",
+        "geocode_display_name": "6701, Carnegie Boulevard, Morrocroft Village, SouthPark, Charlotte, Mecklenburg County, North Carolina, 28211, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.826684,
+          35.1527
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_15",
+        "brand": "Harris Teeter",
+        "name": "Harris Teeter",
+        "address": "1015 Providence Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28207",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 1015, Providence Road, Myers Park, Charlotte, Mecklenburg County, North Carolina, 28207, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.8266147,
+          35.1960213
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_16",
+        "brand": "Harris Teeter",
+        "name": "Harris Teeter",
+        "address": "4100 Carmel Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28226",
+        "role": "validation",
+        "geocode_display_name": "4100, Carmel Road, Charlotte, Mecklenburg County, North Carolina, 28226, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.8244448,
+          35.1171341
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_17",
+        "brand": "Harris Teeter",
+        "name": "Harris Teeter",
+        "address": "4101 Park Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28209",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 4101, Park Road, Charlotte, Mecklenburg County, North Carolina, 28209, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.8501258,
+          35.1756969
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_18",
+        "brand": "Harris Teeter",
+        "name": "Harris Teeter",
+        "address": "5030 Park Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28209",
+        "role": "validation",
+        "geocode_display_name": "5030, Park Road, Parkdale, Charlotte, Mecklenburg County, North Carolina, 28209, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.8492188,
+          35.1621857
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_19",
+        "brand": "Harris Teeter",
+        "name": "Harris Teeter",
+        "address": "10616 Providence Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28277",
+        "role": "validation",
+        "geocode_display_name": "Starbucks, 10616, Providence Road, Providence, Charlotte, Mecklenburg County, North Carolina, 28277, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.7738179,
+          35.063199
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_20",
+        "brand": "Harris Teeter",
+        "name": "Harris Teeter",
+        "address": "8538 Park Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28210",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 8538, Park Road, Charlotte, Mecklenburg County, North Carolina, 28210, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.8581802,
+          35.1166744
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_21",
+        "brand": "Harris Teeter",
+        "name": "Harris Teeter",
+        "address": "11135 Golf Links Dr",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28277",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 11135, Golf Links Drive, Charlotte, Mecklenburg County, North Carolina, 28277, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.7725146,
+          35.0518162
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_22",
+        "brand": "Harris Teeter",
+        "name": "Harris Teeter",
+        "address": "4701 Smith Farm Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28216",
+        "role": "validation",
+        "geocode_display_name": "4701, Smith Farm Road, Mountain Island Village, Shuffletown, Charlotte, Mecklenburg County, North Carolina, 28216, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.940909,
+          35.32666
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_23",
+        "brand": "Harris Teeter",
+        "name": "Harris Teeter",
+        "address": "1621 Sardis Rd N",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28270",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 1621, Sardis Road North, Forest Homes, Charlotte, Mecklenburg County, North Carolina, 28270, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.7387116,
+          35.1407002
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_24",
+        "brand": "Harris Teeter",
+        "name": "Harris Teeter",
+        "address": "2717 South Blvd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28209",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 2717, South Boulevard, Sedgefield, Charlotte, Mecklenburg County, North Carolina, 28209, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.8656497,
+          35.2006718
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_25",
+        "brand": "Harris Teeter",
+        "name": "Harris Teeter",
+        "address": "16625 Lancaster Hwy",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28277",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 16625, Lancaster Highway, Shoppes at Ardrey Kell, Charlotte, Mecklenburg County, North Carolina, 28277, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.8481158,
+          35.0242423
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_26",
+        "brand": "Harris Teeter",
+        "name": "Harris Teeter",
+        "address": "13000 S Tryon St",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28278",
+        "role": "validation",
+        "geocode_display_name": "13000, South Tryon Street, Charlotte, Mecklenburg County, North Carolina, 28278, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.9900134,
+          35.1022686
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_27",
+        "brand": "Harris Teeter",
+        "name": "Harris Teeter",
+        "address": "7852 Rea Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28277",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 7852, Rea Road, Stonecrest, Charlotte, Mecklenburg County, North Carolina, 28277, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.8167237,
+          35.0599658
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_28",
+        "brand": "Harris Teeter",
+        "name": "Harris Teeter",
+        "address": "8445 Davis Lake Pkwy",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28269",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 8445, Davis Lake Parkway, Croft, Charlotte, Mecklenburg County, North Carolina, 28269, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.8145127,
+          35.3341087
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "HT_29",
+        "brand": "Harris Teeter",
+        "name": "Harris Teeter",
+        "address": "8600 University City Blvd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28213",
+        "role": "validation",
+        "geocode_display_name": "Harris Teeter, 8600, University City Boulevard, University City, Charlotte, Mecklenburg County, North Carolina, 28213, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.7383763,
+          35.2962498
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "FL_01",
+        "brand": "Food Lion",
+        "name": "Food Lion",
+        "address": "10120 Johnston Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28210",
+        "role": "competitor",
+        "geocode_display_name": "10120, Johnston Road, Falcon Bridge, Charlotte, Mecklenburg County, North Carolina, 28210, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.858058,
+          35.0936076
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "FL_02",
+        "brand": "Food Lion",
+        "name": "Food Lion",
+        "address": "1620 Ashley Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28208",
+        "role": "competitor",
+        "geocode_display_name": "1620, Ashley Road, Westerly Hill, Ashley Park, Charlotte, Mecklenburg County, North Carolina, 28208, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.8972398,
+          35.2403141
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "FL_03",
+        "brand": "Food Lion",
+        "name": "Food Lion",
+        "address": "704 Harris Houston Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28262",
+        "role": "competitor",
+        "geocode_display_name": "Harris Houston Road, The Villages at Wexford, Charlotte, Mecklenburg County, North Carolina, 28262, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.6938544,
+          35.3246462
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "FL_04",
+        "brand": "Food Lion",
+        "name": "Food Lion",
+        "address": "2123 Beatties Ford Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28216",
+        "role": "competitor",
+        "geocode_display_name": "2123, Beatties Ford Road, Lincoln Heights, Charlotte, Mecklenburg County, North Carolina, 28216, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.8547419,
+          35.2633532
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "FL_05",
+        "brand": "Food Lion",
+        "name": "Food Lion",
+        "address": "2201 West W.T. Harris Blvd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28269",
+        "role": "competitor",
+        "geocode_display_name": "Food Lion, 2201, West W T Harris Boulevard, Mallard, Charlotte, Mecklenburg County, North Carolina, 28269, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.7810333,
+          35.3190405
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "FL_06",
+        "brand": "Food Lion",
+        "name": "Food Lion",
+        "address": "2226 Park Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28203",
+        "role": "competitor",
+        "geocode_display_name": "2226, Park Road, Dilworth Historic District, Charlotte, Mecklenburg County, North Carolina, 28203, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.8521412,
+          35.1994569
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "FL_07",
+        "brand": "Food Lion",
+        "name": "Food Lion",
+        "address": "237 Mt Holly-Huntersville Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28214",
+        "role": "competitor",
+        "geocode_display_name": "Food Lion, 237, Mount Holly-Huntersville Road, Hope Farm, Charlotte, Mecklenburg County, North Carolina, 28214, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.9872757,
+          35.3028085
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "FL_08",
+        "brand": "Food Lion",
+        "name": "Food Lion",
+        "address": "2526 Little Rock Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28214",
+        "role": "competitor",
+        "geocode_display_name": "2526, Little Rock Road, Charlotte, Mecklenburg County, North Carolina, 28214, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.9385076,
+          35.2452603
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "FL_09",
+        "brand": "Food Lion",
+        "name": "Food Lion",
+        "address": "2931 E W.T. Harris Blvd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28213",
+        "role": "competitor",
+        "geocode_display_name": "2931, East W T Harris Boulevard, Charlotte, Mecklenburg County, North Carolina, 28213, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.7285193,
+          35.2728415
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "FL_10",
+        "brand": "Food Lion",
+        "name": "Food Lion",
+        "address": "3009 The Plaza",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28205",
+        "role": "competitor",
+        "geocode_display_name": "Food Lion, 3009, The Plaza, NoDa, Charlotte, Mecklenburg County, North Carolina, 28205, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.7995398,
+          35.2391054
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "FL_11",
+        "brand": "Food Lion",
+        "name": "Food Lion",
+        "address": "3207 Eastway Dr",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28205",
+        "role": "competitor",
+        "geocode_display_name": "Food Lion, 3207, Eastway Drive, Charlotte, Mecklenburg County, North Carolina, 28205, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.7803066,
+          35.2106256
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "FL_13",
+        "brand": "Food Lion",
+        "name": "Food Lion",
+        "address": "4709 Tuckaseegee Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28208",
+        "role": "competitor",
+        "geocode_display_name": "4709, Tuckaseegee Road, Thomasboro, Charlotte, Mecklenburg County, North Carolina, 28208, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.9031488,
+          35.2469466
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "FL_14",
+        "brand": "Food Lion",
+        "name": "Food Lion",
+        "address": "5624 N Graham St",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28269",
+        "role": "competitor",
+        "geocode_display_name": "Food Lion, 5624, North Graham Street, Mineral Springs, Charlotte, Mecklenburg County, North Carolina, 28269, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.7980365,
+          35.289355
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "FL_15",
+        "brand": "Food Lion",
+        "name": "Food Lion",
+        "address": "5831 South Blvd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28210",
+        "role": "competitor",
+        "geocode_display_name": "Food Lion, 5831, South Boulevard, Charlotte, Mecklenburg County, North Carolina, 28210, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.8750294,
+          35.1558242
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "FL_16",
+        "brand": "Food Lion",
+        "name": "Food Lion",
+        "address": "6430 W Sugar Creek Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28269",
+        "role": "competitor",
+        "geocode_display_name": "Food Lion, 6430, West Sugar Creek Road, Mallard, Charlotte, Mecklenburg County, North Carolina, 28269, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.7962572,
+          35.3355242
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "FL_17",
+        "brand": "Food Lion",
+        "name": "Food Lion",
+        "address": "7004 E W.T. Harris Blvd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28215",
+        "role": "competitor",
+        "geocode_display_name": "7004, East W T Harris Boulevard, Hickory Grove, Charlotte, Mecklenburg County, North Carolina, 28215, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.7274839,
+          35.2249308
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "FL_18",
+        "brand": "Food Lion",
+        "name": "Food Lion",
+        "address": "7400 Candlewyck Ln",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28226",
+        "role": "competitor",
+        "geocode_display_name": "Food Lion, 7400, Candlewyck Lane, Candlewyck, Charlotte, Mecklenburg County, North Carolina, 28226, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.7809727,
+          35.1089098
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "FL_19",
+        "brand": "Food Lion",
+        "name": "Food Lion",
+        "address": "7400 The Plaza",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28215",
+        "role": "competitor",
+        "geocode_display_name": "Food Lion, 7400, The Plaza, Candlewood, Charlotte, Mecklenburg County, North Carolina, 28215, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.7344343,
+          35.257587
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "FL_20",
+        "brand": "Food Lion",
+        "name": "Food Lion",
+        "address": "8010 Cambridge Commons Dr",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28215",
+        "role": "competitor",
+        "geocode_display_name": "Food Lion, 8010, Cambridge Commons Drive, Charlotte, Mecklenburg County, North Carolina, 28215, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.6571145,
+          35.2523975
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "FL_21",
+        "brand": "Food Lion",
+        "name": "Food Lion",
+        "address": "8100 Idlewild Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28227",
+        "role": "competitor",
+        "geocode_display_name": "Food Lion, 8100, Idlewild Road, Idlewild, Charlotte, Mecklenburg County, North Carolina, 28227, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.729225,
+          35.1845487
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "FL_22",
+        "brand": "Food Lion",
+        "name": "Food Lion",
+        "address": "8138 Mt Holly-Huntersville Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28216",
+        "role": "competitor",
+        "geocode_display_name": "8138, Mount Holly-Huntersville Road, Charlotte, Mecklenburg County, North Carolina, 28216, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.8878164,
+          35.3460412
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "FL_23",
+        "brand": "Food Lion",
+        "name": "Food Lion",
+        "address": "9021 Albemarle Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28227",
+        "role": "competitor",
+        "geocode_display_name": "Food Lion, 9021, Albemarle Road, Orchard Park, Charlotte, Mecklenburg County, North Carolina, 28227, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.6902384,
+          35.2131598
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "FL_24",
+        "brand": "Food Lion",
+        "name": "Food Lion",
+        "address": "9112 S Tryon St",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28273",
+        "role": "competitor",
+        "geocode_display_name": "9112, South Tryon Street, Charlotte, Mecklenburg County, North Carolina, 28273, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.9396795,
+          35.1342729
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "FL_25",
+        "brand": "Food Lion",
+        "name": "Food Lion",
+        "address": "9115 Samlen Ln",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28214",
+        "role": "competitor",
+        "geocode_display_name": "Food Lion, 9115, Samlen Lane, Charlotte, Mecklenburg County, North Carolina, 28214, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.9615945,
+          35.2719428
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "FL_26",
+        "brand": "Food Lion",
+        "name": "Food Lion",
+        "address": "931 N Wendover Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28211",
+        "role": "competitor",
+        "geocode_display_name": "Food Lion, 931, North Wendover Road, Grier Heights, Charlotte, Mecklenburg County, North Carolina, 28211, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.7970173,
+          35.192216
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "FL_27",
+        "brand": "Food Lion",
+        "name": "Food Lion",
+        "address": "9323 N Tryon St",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28262",
+        "role": "competitor",
+        "geocode_display_name": "Food Lion, 9323, North Tryon Street, University City, Charlotte, Mecklenburg County, North Carolina, 28262, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.7444604,
+          35.3140857
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "FL_28",
+        "brand": "Food Lion",
+        "name": "Food Lion",
+        "address": "9848 Monroe Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28270",
+        "role": "competitor",
+        "geocode_display_name": "Food Lion, 9848, Monroe Road, Forest Homes, Charlotte, Mecklenburg County, North Carolina, 28270, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.7396749,
+          35.1377864
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "PB_01",
+        "brand": "Publix",
+        "name": "Publix",
+        "address": "10110 Benfield Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28269",
+        "role": "competitor",
+        "geocode_display_name": "Publix, 10110, Benfield Road, Charlotte, Mecklenburg County, North Carolina, 28269, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.7884839,
+          35.374917
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "PB_02",
+        "brand": "Publix",
+        "name": "Publix",
+        "address": "5015 Weddington Rd",
+        "city": "Concord",
+        "state": "NC",
+        "zip": "28027",
+        "role": "competitor",
+        "geocode_display_name": "Publix, 5015, Weddington Road Northwest, Concord, Cabarrus County, North Carolina, 28027, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.661271,
+          35.396204
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "PB_03",
+        "brand": "Publix",
+        "name": "Publix",
+        "address": "2222 South Blvd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28203",
+        "role": "competitor",
+        "geocode_display_name": "2222, South Boulevard, South End, Charlotte, Mecklenburg County, North Carolina, 28203, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.8623749,
+          35.2066025
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "PB_04",
+        "brand": "Publix",
+        "name": "Publix",
+        "address": "12925 Albemarle Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28227",
+        "role": "competitor",
+        "geocode_display_name": "12925, Albemarle Road, Charlotte, Mecklenburg County, North Carolina, 28227, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.6361932,
+          35.2238019
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "PB_05",
+        "brand": "Publix",
+        "name": "Publix",
+        "address": "6828 Matthews-Mint Hill Rd",
+        "city": "Mint Hill",
+        "state": "NC",
+        "zip": "28227",
+        "role": "competitor",
+        "geocode_display_name": "Publix, 6828, Matthews-Mint Hill Road, Downtown, Charlotte, Mecklenburg County, North Carolina, 28227, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.65951,
+          35.1709166
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "PB_06",
+        "brand": "Publix",
+        "name": "Publix",
+        "address": "4425 Randolph Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28211",
+        "role": "competitor",
+        "geocode_display_name": "Publix, 4425, Randolph Road, Cotswold, Charlotte, Mecklenburg County, North Carolina, 28211, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.7995817,
+          35.1778323
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "PB_07",
+        "brand": "Publix",
+        "name": "Publix",
+        "address": "4135 S Stream Blvd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28217",
+        "role": "competitor",
+        "geocode_display_name": "4135, South Stream Boulevard, City Park, Charlotte, Mecklenburg County, North Carolina, 28217, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.9202881,
+          35.1832195
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "PB_08",
+        "brand": "Publix",
+        "name": "Publix",
+        "address": "8120 S Tryon St",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28273",
+        "role": "competitor",
+        "geocode_display_name": "Publix, 8120, South Tryon Street, Yorkwood, Charlotte, Mecklenburg County, North Carolina, 28273, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.9298541,
+          35.1460582
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "PB_09",
+        "brand": "Publix",
+        "name": "Publix",
+        "address": "7933 Providence Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28277",
+        "role": "competitor",
+        "geocode_display_name": "7933, Providence Road, Charlotte, Mecklenburg County, North Carolina, 28277, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.7784788,
+          35.0993603
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "PB_10",
+        "brand": "Publix",
+        "name": "Publix",
+        "address": "3110 Fincher Farm Rd",
+        "city": "Matthews",
+        "state": "NC",
+        "zip": "28105",
+        "role": "competitor",
+        "geocode_display_name": "Publix, 3110, Fincher Farm Road, Matthews, Mecklenburg County, North Carolina, 28105, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.7301403,
+          35.082344
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "PB_11",
+        "brand": "Publix",
+        "name": "Publix",
+        "address": "11525 Carmel Commons Blvd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28226",
+        "role": "competitor",
+        "geocode_display_name": "Publix, 11525, Carmel Commons Boulevard, Carmel, Carmel Commons, Charlotte, Mecklenburg County, North Carolina, 28226, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.8440906,
+          35.0864911
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "PB_12",
+        "brand": "Publix",
+        "name": "Publix",
+        "address": "11222 Providence Rd W",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28277",
+        "role": "competitor",
+        "geocode_display_name": "Publix, 11222, Providence Road West, Ballantyne, Charlotte, Mecklenburg County, North Carolina, 28277, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.8496279,
+          35.0425775
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "PB_13",
+        "brand": "Publix",
+        "name": "Publix",
+        "address": "1615 Providence Rd S",
+        "city": "Marvin",
+        "state": "NC",
+        "zip": "28173",
+        "role": "competitor",
+        "geocode_display_name": "Providence Road South, Marvin, Union County, North Carolina, 28173, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.7722482,
+          34.981272
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "PB_14",
+        "brand": "Publix",
+        "name": "Publix",
+        "address": "12810 S Tryon St",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28273",
+        "role": "competitor",
+        "geocode_display_name": "Publix, 12810, South Tryon Street, Charlotte, Mecklenburg County, North Carolina, 28273, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.9880199,
+          35.1049407
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "LF_01",
+        "brand": "Lowes Foods",
+        "name": "Lowes Foods",
+        "address": "2415 Herrons Nest Pl NW",
+        "city": "Concord",
+        "state": "NC",
+        "zip": "28027",
+        "role": "competitor",
+        "geocode_display_name": "Herrons Nest Place Northwest, Christenbury, Concord, Cabarrus County, North Carolina, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.7348278,
+          35.3823193
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "LF_03",
+        "brand": "Lowes Foods",
+        "name": "Lowes Foods",
+        "address": "14021 Boren St",
+        "city": "Huntersville",
+        "state": "NC",
+        "zip": "28078",
+        "role": "competitor",
+        "geocode_display_name": "Lowes Foods, 14021, Boren Street, Rosedale, Huntersville, Mecklenburg County, North Carolina, 28078, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.8665105,
+          35.4040565
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "AL_01",
+        "brand": "ALDI",
+        "name": "ALDI",
+        "address": "10629 Park Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28210",
+        "role": "competitor",
+        "geocode_display_name": "Park Road, Quail Hollow, Charlotte, Mecklenburg County, North Carolina, 28210, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.8559523,
+          35.1166231
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "AL_02",
+        "brand": "ALDI",
+        "name": "ALDI",
+        "address": "10710 South Tryon St",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28273",
+        "role": "competitor",
+        "geocode_display_name": "ALDI, 10710, South Tryon Street, Charlotte, Mecklenburg County, North Carolina, 28273, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.9559887,
+          35.1198559
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "AL_03",
+        "brand": "ALDI",
+        "name": "ALDI",
+        "address": "2526 Freedom Dr",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28208",
+        "role": "competitor",
+        "geocode_display_name": "Aldi, 2526, Freedom Drive, Camp Greene, Ashley Park, Charlotte, Mecklenburg County, North Carolina, 28208, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.8803038,
+          35.2370525
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "AL_04",
+        "brand": "ALDI",
+        "name": "ALDI",
+        "address": "4006 Connection Point Blvd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28212",
+        "role": "competitor",
+        "geocode_display_name": "ALDI, 4006, Connection Point Boulevard, Rama, Charlotte, Mecklenburg County, North Carolina, 28212, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.7618506,
+          35.1851175
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "AL_05",
+        "brand": "ALDI",
+        "name": "ALDI",
+        "address": "4120 Sunset Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28216",
+        "role": "competitor",
+        "geocode_display_name": "ALDI, 4120, Sunset Road, Charlotte, Mecklenburg County, North Carolina, 28216, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.859235,
+          35.3040955
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "AL_06",
+        "brand": "ALDI",
+        "name": "ALDI",
+        "address": "5550 Old Pineville Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28217",
+        "role": "competitor",
+        "geocode_display_name": "ALDI, 5550, Old Pineville Road, Currituck, Charlotte, Mecklenburg County, North Carolina, 28217, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.8788123,
+          35.1644526
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "AL_07",
+        "brand": "ALDI",
+        "name": "ALDI",
+        "address": "5817 Prosperity Church Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28269",
+        "role": "competitor",
+        "geocode_display_name": "ALDI, 5817, Prosperity Church Road, Charlotte, Mecklenburg County, North Carolina, 28269, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.7861346,
+          35.37239
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "AL_08",
+        "brand": "ALDI",
+        "name": "ALDI",
+        "address": "6454 Albemarle Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28212",
+        "role": "competitor",
+        "geocode_display_name": "Aldi, 6454, Albemarle Road, Eastland, Charlotte, Mecklenburg County, North Carolina, 28212, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.7344448,
+          35.2012828
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "AL_09",
+        "brand": "ALDI",
+        "name": "ALDI",
+        "address": "9609 N Tryon St",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28262",
+        "role": "competitor",
+        "geocode_display_name": "9609, North Tryon Street, University City, Charlotte, Mecklenburg County, North Carolina, 28262, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.7403629,
+          35.3154389
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "LD_01",
+        "brand": "Lidl",
+        "name": "Lidl",
+        "address": "8930 Christenbury Pkwy",
+        "city": "Concord",
+        "state": "NC",
+        "zip": "28027",
+        "role": "competitor",
+        "geocode_display_name": "Lidl, 8930, Christenbury Parkway, Concord, Cabarrus County, North Carolina, 28027, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.7322624,
+          35.3768173
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "LD_02",
+        "brand": "Lidl",
+        "name": "Lidl",
+        "address": "615 W Mallard Creek Church Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28262",
+        "role": "competitor",
+        "geocode_display_name": "Lidl 1044, 615, West Mallard Creek Church Road, University City, Charlotte, Mecklenburg County, North Carolina, 28262, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.7380473,
+          35.3273489
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "LD_03",
+        "brand": "Lidl",
+        "name": "Lidl",
+        "address": "4520 Margaret Wallace Rd",
+        "city": "Matthews",
+        "state": "NC",
+        "zip": "28105",
+        "role": "competitor",
+        "geocode_display_name": "4520, Margaret Wallace Road, Matthews, Mecklenburg County, North Carolina, 28105, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.7077236,
+          35.171931
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "LD_04",
+        "brand": "Lidl",
+        "name": "Lidl",
+        "address": "9318 Monroe Rd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28270",
+        "role": "competitor",
+        "geocode_display_name": "9318, Monroe Road, Forest Homes, Charlotte, Mecklenburg County, North Carolina, 28270, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.742923,
+          35.1451917
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "LD_05",
+        "brand": "Lidl",
+        "name": "Lidl",
+        "address": "11200 Carmel Commons Blvd",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28226",
+        "role": "competitor",
+        "geocode_display_name": "Lidl, 11200, Carmel Commons Boulevard, Carmel, Carmel Commons, Charlotte, Mecklenburg County, North Carolina, 28226, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.8457626,
+          35.0829227
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "store_id": "LD_06",
+        "brand": "Lidl",
+        "name": "Lidl",
+        "address": "11225 S Tryon St",
+        "city": "Charlotte",
+        "state": "NC",
+        "zip": "28273",
+        "role": "competitor",
+        "geocode_display_name": "Lidl, 11225, South Tryon Street, Charlotte, Mecklenburg County, North Carolina, 28273, United States"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.9625896,
+          35.114323
+        ]
+      }
+    }
+  ]
+}

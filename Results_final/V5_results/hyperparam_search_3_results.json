@@ -1,0 +1,504 @@
+{
+  "brand": "Harris Teeter",
+  "city": "Charlotte, NC",
+  "test": "hyperparam_search_3_loocv",
+  "best_params": {
+    "radius_miles": 4.0,
+    "beta": 3.5,
+    "K": 6,
+    "W1": 0.7,
+    "W2": 0.1,
+    "W3": 0.2,
+    "mean_pct_rank": 62.327,
+    "loocv_pct_rank": 64.706
+  },
+  "stage_a_top20": [
+    {
+      "radius": 6.0,
+      "beta": 3.5,
+      "K": 4,
+      "mean_pct": 61.982,
+      "loocv_pct": 62.679
+    },
+    {
+      "radius": 6.0,
+      "beta": 3.5,
+      "K": 5,
+      "mean_pct": 61.979,
+      "loocv_pct": 62.746
+    },
+    {
+      "radius": 6.0,
+      "beta": 3.5,
+      "K": 6,
+      "mean_pct": 61.958,
+      "loocv_pct": 62.782
+    },
+    {
+      "radius": 6.0,
+      "beta": 3.5,
+      "K": 3,
+      "mean_pct": 61.91,
+      "loocv_pct": 62.664
+    },
+    {
+      "radius": 6.5,
+      "beta": 3.5,
+      "K": 5,
+      "mean_pct": 61.659,
+      "loocv_pct": 62.26
+    },
+    {
+      "radius": 5.5,
+      "beta": 3.5,
+      "K": 5,
+      "mean_pct": 61.656,
+      "loocv_pct": 62.456
+    },
+    {
+      "radius": 5.5,
+      "beta": 3.5,
+      "K": 4,
+      "mean_pct": 61.642,
+      "loocv_pct": 62.438
+    },
+    {
+      "radius": 6.5,
+      "beta": 3.5,
+      "K": 6,
+      "mean_pct": 61.629,
+      "loocv_pct": 62.231
+    },
+    {
+      "radius": 5.5,
+      "beta": 3.5,
+      "K": 3,
+      "mean_pct": 61.62,
+      "loocv_pct": 62.432
+    },
+    {
+      "radius": 5.5,
+      "beta": 3.5,
+      "K": 6,
+      "mean_pct": 61.599,
+      "loocv_pct": 62.39
+    },
+    {
+      "radius": 6.5,
+      "beta": 3.5,
+      "K": 4,
+      "mean_pct": 61.597,
+      "loocv_pct": 62.18
+    },
+    {
+      "radius": 6.5,
+      "beta": 3.5,
+      "K": 3,
+      "mean_pct": 61.502,
+      "loocv_pct": 62.033
+    },
+    {
+      "radius": 4.0,
+      "beta": 3.5,
+      "K": 5,
+      "mean_pct": 61.477,
+      "loocv_pct": 62.849
+    },
+    {
+      "radius": 4.0,
+      "beta": 3.5,
+      "K": 4,
+      "mean_pct": 61.441,
+      "loocv_pct": 62.794
+    },
+    {
+      "radius": 4.0,
+      "beta": 3.5,
+      "K": 6,
+      "mean_pct": 61.429,
+      "loocv_pct": 62.851
+    },
+    {
+      "radius": 4.0,
+      "beta": 3.5,
+      "K": 3,
+      "mean_pct": 61.359,
+      "loocv_pct": 62.756
+    },
+    {
+      "radius": 7.0,
+      "beta": 3.5,
+      "K": 5,
+      "mean_pct": 61.223,
+      "loocv_pct": 61.681
+    },
+    {
+      "radius": 7.0,
+      "beta": 3.5,
+      "K": 6,
+      "mean_pct": 61.198,
+      "loocv_pct": 61.669
+    },
+    {
+      "radius": 7.0,
+      "beta": 3.5,
+      "K": 4,
+      "mean_pct": 61.182,
+      "loocv_pct": 61.599
+    },
+    {
+      "radius": 5.0,
+      "beta": 3.5,
+      "K": 5,
+      "mean_pct": 61.146,
+      "loocv_pct": 62.189
+    }
+  ],
+  "stage_b_loocv": [
+    {
+      "radius": 6.0,
+      "beta": 3.5,
+      "K": 4,
+      "mean_pct": 61.982,
+      "loocv_pct": 62.679
+    },
+    {
+      "radius": 6.0,
+      "beta": 3.5,
+      "K": 5,
+      "mean_pct": 61.979,
+      "loocv_pct": 62.746
+    },
+    {
+      "radius": 6.0,
+      "beta": 3.5,
+      "K": 6,
+      "mean_pct": 61.958,
+      "loocv_pct": 62.782
+    },
+    {
+      "radius": 6.0,
+      "beta": 3.5,
+      "K": 3,
+      "mean_pct": 61.91,
+      "loocv_pct": 62.664
+    },
+    {
+      "radius": 6.5,
+      "beta": 3.5,
+      "K": 5,
+      "mean_pct": 61.659,
+      "loocv_pct": 62.26
+    },
+    {
+      "radius": 5.5,
+      "beta": 3.5,
+      "K": 5,
+      "mean_pct": 61.656,
+      "loocv_pct": 62.456
+    },
+    {
+      "radius": 5.5,
+      "beta": 3.5,
+      "K": 4,
+      "mean_pct": 61.642,
+      "loocv_pct": 62.438
+    },
+    {
+      "radius": 6.5,
+      "beta": 3.5,
+      "K": 6,
+      "mean_pct": 61.629,
+      "loocv_pct": 62.231
+    },
+    {
+      "radius": 5.5,
+      "beta": 3.5,
+      "K": 3,
+      "mean_pct": 61.62,
+      "loocv_pct": 62.432
+    },
+    {
+      "radius": 5.5,
+      "beta": 3.5,
+      "K": 6,
+      "mean_pct": 61.599,
+      "loocv_pct": 62.39
+    },
+    {
+      "radius": 6.5,
+      "beta": 3.5,
+      "K": 4,
+      "mean_pct": 61.597,
+      "loocv_pct": 62.18
+    },
+    {
+      "radius": 6.5,
+      "beta": 3.5,
+      "K": 3,
+      "mean_pct": 61.502,
+      "loocv_pct": 62.033
+    },
+    {
+      "radius": 4.0,
+      "beta": 3.5,
+      "K": 5,
+      "mean_pct": 61.477,
+      "loocv_pct": 62.849
+    },
+    {
+      "radius": 4.0,
+      "beta": 3.5,
+      "K": 4,
+      "mean_pct": 61.441,
+      "loocv_pct": 62.794
+    },
+    {
+      "radius": 4.0,
+      "beta": 3.5,
+      "K": 6,
+      "mean_pct": 61.429,
+      "loocv_pct": 62.851
+    },
+    {
+      "radius": 4.0,
+      "beta": 3.5,
+      "K": 3,
+      "mean_pct": 61.359,
+      "loocv_pct": 62.756
+    },
+    {
+      "radius": 7.0,
+      "beta": 3.5,
+      "K": 5,
+      "mean_pct": 61.223,
+      "loocv_pct": 61.681
+    },
+    {
+      "radius": 7.0,
+      "beta": 3.5,
+      "K": 6,
+      "mean_pct": 61.198,
+      "loocv_pct": 61.669
+    },
+    {
+      "radius": 7.0,
+      "beta": 3.5,
+      "K": 4,
+      "mean_pct": 61.182,
+      "loocv_pct": 61.599
+    },
+    {
+      "radius": 5.0,
+      "beta": 3.5,
+      "K": 5,
+      "mean_pct": 61.146,
+      "loocv_pct": 62.189
+    }
+  ],
+  "stage_c_top10_weights": [
+    {
+      "radius": 4.0,
+      "beta": 3.5,
+      "K": 6,
+      "W1": 0.7,
+      "W2": 0.2,
+      "W3": 0.1,
+      "mean_pct": 62.327,
+      "loocv_pct": 63.669
+    },
+    {
+      "radius": 4.0,
+      "beta": 3.5,
+      "K": 6,
+      "W1": 0.7,
+      "W2": 0.1,
+      "W3": 0.2,
+      "mean_pct": 61.547,
+      "loocv_pct": 64.706
+    },
+    {
+      "radius": 4.0,
+      "beta": 3.5,
+      "K": 6,
+      "W1": 0.6,
+      "W2": 0.3,
+      "W3": 0.1,
+      "mean_pct": 61.429,
+      "loocv_pct": 62.851
+    },
+    {
+      "radius": 4.0,
+      "beta": 3.5,
+      "K": 6,
+      "W1": 0.6,
+      "W2": 0.2,
+      "W3": 0.2,
+      "mean_pct": 60.232,
+      "loocv_pct": 63.648
+    },
+    {
+      "radius": 4.0,
+      "beta": 3.5,
+      "K": 6,
+      "W1": 0.5,
+      "W2": 0.4,
+      "W3": 0.1,
+      "mean_pct": 60.223,
+      "loocv_pct": 61.817
+    },
+    {
+      "radius": 4.0,
+      "beta": 3.5,
+      "K": 6,
+      "W1": 0.6,
+      "W2": 0.1,
+      "W3": 0.3,
+      "mean_pct": 59.112,
+      "loocv_pct": 64.521
+    },
+    {
+      "radius": 4.0,
+      "beta": 3.5,
+      "K": 6,
+      "W1": 0.5,
+      "W2": 0.3,
+      "W3": 0.2,
+      "mean_pct": 59.001,
+      "loocv_pct": 62.157
+    },
+    {
+      "radius": 4.0,
+      "beta": 3.5,
+      "K": 6,
+      "W1": 0.5,
+      "W2": 0.2,
+      "W3": 0.3,
+      "mean_pct": 57.542,
+      "loocv_pct": 63.358
+    },
+    {
+      "radius": 4.0,
+      "beta": 3.5,
+      "K": 6,
+      "W1": 0.4,
+      "W2": 0.4,
+      "W3": 0.2,
+      "mean_pct": 57.487,
+      "loocv_pct": 61.015
+    },
+    {
+      "radius": 4.0,
+      "beta": 3.5,
+      "K": 6,
+      "W1": 0.4,
+      "W2": 0.3,
+      "W3": 0.3,
+      "mean_pct": 55.865,
+      "loocv_pct": 61.586
+    }
+  ],
+  "stage_d_loocv_weights": [
+    {
+      "radius": 4.0,
+      "beta": 3.5,
+      "K": 6,
+      "W1": 0.7,
+      "W2": 0.1,
+      "W3": 0.2,
+      "mean_pct": 61.547,
+      "loocv_pct": 64.706
+    },
+    {
+      "radius": 4.0,
+      "beta": 3.5,
+      "K": 6,
+      "W1": 0.6,
+      "W2": 0.1,
+      "W3": 0.3,
+      "mean_pct": 59.112,
+      "loocv_pct": 64.521
+    },
+    {
+      "radius": 4.0,
+      "beta": 3.5,
+      "K": 6,
+      "W1": 0.7,
+      "W2": 0.2,
+      "W3": 0.1,
+      "mean_pct": 62.327,
+      "loocv_pct": 63.669
+    },
+    {
+      "radius": 4.0,
+      "beta": 3.5,
+      "K": 6,
+      "W1": 0.6,
+      "W2": 0.2,
+      "W3": 0.2,
+      "mean_pct": 60.232,
+      "loocv_pct": 63.648
+    },
+    {
+      "radius": 4.0,
+      "beta": 3.5,
+      "K": 6,
+      "W1": 0.5,
+      "W2": 0.2,
+      "W3": 0.3,
+      "mean_pct": 57.542,
+      "loocv_pct": 63.358
+    },
+    {
+      "radius": 4.0,
+      "beta": 3.5,
+      "K": 6,
+      "W1": 0.6,
+      "W2": 0.3,
+      "W3": 0.1,
+      "mean_pct": 61.429,
+      "loocv_pct": 62.851
+    },
+    {
+      "radius": 4.0,
+      "beta": 3.5,
+      "K": 6,
+      "W1": 0.5,
+      "W2": 0.3,
+      "W3": 0.2,
+      "mean_pct": 59.001,
+      "loocv_pct": 62.157
+    },
+    {
+      "radius": 4.0,
+      "beta": 3.5,
+      "K": 6,
+      "W1": 0.5,
+      "W2": 0.4,
+      "W3": 0.1,
+      "mean_pct": 60.223,
+      "loocv_pct": 61.817
+    },
+    {
+      "radius": 4.0,
+      "beta": 3.5,
+      "K": 6,
+      "W1": 0.4,
+      "W2": 0.3,
+      "W3": 0.3,
+      "mean_pct": 55.865,
+      "loocv_pct": 61.586
+    },
+    {
+      "radius": 4.0,
+      "beta": 3.5,
+      "K": 6,
+      "W1": 0.4,
+      "W2": 0.4,
+      "W3": 0.2,
+      "mean_pct": 57.487,
+      "loocv_pct": 61.015
+    }
+  ],
+  "runtime_minutes": 8.1
+}

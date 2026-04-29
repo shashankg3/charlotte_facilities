@@ -1,0 +1,56 @@
+{
+  "benchmark": "V3_paper_comparison_PC",
+  "hardware": {
+    "cpu": "Intel Core i5-1035G1 @ 1.00GHz",
+    "cores": 4,
+    "threads": 8,
+    "ram_gb": 8,
+    "os": "Windows",
+    "docker": "29.0.1",
+    "osrm": "osrm-backend:latest (Docker)"
+  },
+  "graph": {
+    "city": "Charlotte, NC",
+    "nodes": 282751,
+    "bgs": 559,
+    "candidates": 2450
+  },
+  "results": {
+    "paper1": {
+      "label": "Standard Dijkstra (sequential)",
+      "reference": "Jin & Lu (2022)",
+      "preprocess_s": 0,
+      "query_s": 255.0,
+      "total_s": 255.0,
+      "spearman_rho": "baseline"
+    },
+    "paper2": {
+      "label": "Parallel Dijkstra (4 cores)",
+      "reference": "Kang et al. (2020)",
+      "preprocess_s": 0,
+      "query_s": 126.7,
+      "total_s": 126.7,
+      "spearman_rho": 1.0,
+      "speedup_vs_p1": 2.01
+    },
+    "ours": {
+      "label": "Multi-source Dijkstra (ours)",
+      "reference": "This study",
+      "preprocess_s": 52.3,
+      "query_s": 0.6,
+      "total_s": 53.0,
+      "spearman_rho": 1.0,
+      "speedup_vs_p1": 4.81
+    },
+    "paper3": {
+      "label": "OSRM CH (Contraction Hierarchies)",
+      "reference": "Horton et al. (2025)",
+      "preprocess_s": 2546.4,
+      "query_s": 138.7,
+      "total_s": 2685.1,
+      "note": "Preprocessing = osrm-contract (measured separately via Docker)",
+      "spearman_rho": 0.7448,
+      "speedup_vs_p1": 0.09
+    }
+  }
+}

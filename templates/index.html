@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Charlotte Facilities – Site Selection</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+ integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
+<style>
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; background:#f5f5f5; }
+
+  /* ── Header ── */
+  header {
+    background: var(--brand-color, #c8102e);
+    color: #fff;
+    padding: 0 20px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-weight: 700;
+    font-size: 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.25);
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 2000;
+    transition: background .3s;
+  }
+  header .logo {
+    background:#fff;
+    color: var(--brand-color, #c8102e);
+    font-weight:900;
+    font-size:13px;
+    padding:3px 8px;
+    border-radius:4px;
+    letter-spacing:.5px;
+    transition: color .3s;
+  }
+  header .subtitle {
+    font-size:13px;
+    font-weight:400;
+    opacity:.85;
+  }
+
+  /* ── Brand selector in header ── */
+  #brand-select {
+    margin-left: auto;
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+    border: 2px solid rgba(255,255,255,0.6);
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 5px 10px;
+    cursor: pointer;
+    outline: none;
+    transition: background .2s;
+  }
+  #brand-select:hover { background: rgba(255,255,255,0.3); }
+  #brand-select option { color: #333; background: #fff; font-weight:600; }
+
+  /* ── Layout ── */
+  #map {
+    position: fixed;
+    top: 56px; bottom: 0;
+    left: 360px; right: 0;
+  }
+  .panel {
+    position: fixed;
+    top: 56px; bottom: 0; left: 0;
+    width: 360px;
+    background: #fff;
+    overflow-y: auto;
+    border-right: 1px solid #e0e0e0;
+    padding: 16px;
+    z-index: 1000;
+  }
+
+  /* ── Section titles ── */
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .6px;
+    color: var(--brand-color, #c8102e);
+    margin: 18px 0 8px;
+    padding-bottom: 4px;
+    border-bottom: 2px solid var(--brand-color, #c8102e);
+    transition: color .3s, border-color .3s;
+  }
+
+  /* ── Controls ── */
+  .control-row { margin-bottom: 10px; }
+  .control-row label { display:block; font-size:13px; color:#555; margin-bottom:3px; }
+  .control-row input[type="number"] {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size:14px;
+  }
+  .control-row input:focus { outline:none; border-color: var(--brand-color, #c8102e); }
+
+  .weight-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 10px;
+    align-items: end;
+  }
+  .weight-grid .control-row { margin-bottom:0; }
+  .weight-grid .control-row label {
+    display: block;
+    font-size: 12px;
+    color: #555;
+    margin-bottom: 3px;
+    min-height: 32px;
+    line-height: 1.3;
+  }
+
+  /* ── Recompute button ── */
+  #recompute-btn {
+    width: 100%;
+    padding: 9px;
+    background: var(--brand-color, #c8102e);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 4px;
+    transition: background .15s, filter .15s;
+  }
+  #recompute-btn:hover  { filter: brightness(0.88); }
+  #recompute-btn:disabled { background:#ccc; cursor:not-allowed; filter:none; }
+
+  /* ── Stat bar ── */
+  .stat-bar {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    background: #fef2f2;
+    border: 1px solid #fbd5d5;
+    border-radius: 6px;
+    padding: 8px 10px;
+    margin-bottom: 10px;
+    color: #555;
+  }
+  .stat-bar .stat-val { font-weight:700; color: var(--brand-color, #c8102e); }
+
+  /* ── Top-10 list ── */
+  ol#top-list { padding-left:0; list-style:none; margin:0; }
+  ol#top-list li {
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: box-shadow .15s;
+  }
+  ol#top-list li:hover {
+    box-shadow: 0 2px 10px rgba(0,0,0,.12);
+    border-color: var(--brand-color, #c8102e);
+  }
+  .rank-badge {
+    display: inline-block;
+    background: var(--brand-color, #c8102e);
+    color: #fff;
+    border-radius: 50%;
+    width:22px; height:22px;
+    text-align:center; line-height:22px;
+    font-size:11px; font-weight:700;
+    margin-right:6px;
+    transition: background .3s;
+  }
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3px 8px;
+    margin-top: 6px;
+    font-size: 12px; color:#666;
+  }
+  .kpi-grid .k { color:#999; }
+  .kpi-grid .v { font-weight:600; color:#333; }
+
+  /* ── Legend ── */
+  .legend { display:flex; flex-wrap:wrap; gap:8px 16px; font-size:12px; margin-top:4px; }
+  .legend-item { display:flex; align-items:center; gap:5px; }
+  .dot { width:10px; height:10px; border-radius:50%; display:inline-block; }
+  #legend-existing-dot { background: var(--brand-color, #c8102e); transition: background .3s; }
+  #legend-existing-lbl { transition: color .3s; }
+
+  /* ── Hint text ── */
+  .hint { font-size:10px; color:#888; margin-bottom:6px; }
+</style>
+</head>
+
+<body>
+<header id="header">
+  <span class="logo" id="header-logo">FL</span>
+  <span id="header-title">Food Lion – Site Selection</span>
+  <span class="subtitle">Charlotte, NC</span>
+  <select id="brand-select">
+    <option value="fl">🔴 Food Lion</option>
+    <option value="ht">🟢 Harris Teeter</option>
+  </select>
+</header>
+
+<div class="panel">
+
+  <div class="section-title">Scoring Controls</div>
+
+  <div class="control-row">
+    <label>Catchment radius (miles)</label>
+    <input id="radius" type="number" step="0.5" min="1" max="15" value="5.5">
+  </div>
+
+  <div class="control-row">
+    <label>Beta β (distance decay)</label>
+    <input id="beta" type="number" step="0.1" min="0.5" max="10" value="3.5">
+  </div>
+
+  <div class="control-row">
+    <label>K nearest competitors (Huff)</label>
+    <input id="K" type="number" step="1" min="1" max="15" value="6">
+  </div>
+
+  <div class="section-title">
+    Scoring Weights
+    <span style="font-weight:400;font-size:11px">(must sum to 1)</span>
+  </div>
+  <div class="hint">Optimised by V5 LOOCV hyperparameter search</div>
+
+  <div class="weight-grid">
+    <div class="control-row">
+      <label>W1 – Huff demand</label>
+      <input id="W1" type="number" step="0.05" min="0" max="1" value="0.10">
+    </div>
+    <div class="control-row">
+      <label>W2 – Dijkstra access</label>
+      <input id="W2" type="number" step="0.05" min="0" max="1" value="0.05">
+    </div>
+    <div class="control-row">
+      <label>W3 – Comp. penalty</label>
+      <input id="W3" type="number" step="0.05" min="0" max="1" value="0.85">
+    </div>
+  </div>
+
+  <button id="recompute-btn" type="button">▶ Recompute</button>
+
+  <div class="section-title">Legend</div>
+  <div class="legend">
+    <div class="legend-item">
+      <span class="dot" id="legend-existing-dot"></span>
+      <span id="legend-existing-lbl">Existing Food Lion</span>
+    </div>
+    <div class="legend-item">
+      <span class="dot" style="background:#ff7043;"></span>
+      Competitors
+    </div>
+    <div class="legend-item">
+      <span class="dot" style="background:#1565C0;border:2px solid #0d47a1;"></span>
+      Recommended sites
+    </div>
+  </div>
+
+  <div class="section-title">Top-10 Recommended Sites</div>
+
+  <div class="stat-bar" id="stat-bar" style="display:none">
+    <div>Candidates: <span class="stat-val" id="stat-cands">—</span></div>
+    <div>Stores: <span class="stat-val" id="stat-stores">—</span></div>
+    <div>Competitors: <span class="stat-val" id="stat-comp">—</span></div>
+  </div>
+
+  <ol id="top-list">
+    <li style="color:#aaa;list-style:none;padding:8px 0">
+      Select a brand and click Recompute…
+    </li>
+  </ol>
+
+</div>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+ integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<script>
+// ── Brand config (injected by Flask) ──────────────────────────
+const BRAND_PARAMS = {
+  fl: {{ fl_params | safe }},
+  ht: {{ ht_params | safe }},
+};
+
+const BRAND_META = {
+  fl: { color:"#c8102e", logo:"FL", title:"Food Lion – Site Selection",  legend:"Existing Food Lion"   },
+  ht: { color:"#00693e", logo:"HT", title:"Harris Teeter – Site Selection", legend:"Existing Harris Teeter" },
+};
+
+let currentBrand = "fl";
+
+const MAP_CENTER = [35.2271, -80.8431];
+const fmt2  = n => Number.isFinite(n) ? n.toFixed(2)  : "—";
+const money = n => Number.isFinite(n) ? n.toLocaleString(undefined,{maximumFractionDigits:0}) : "—";
+
+// ── Map setup ─────────────────────────────────────────────────
+const map = L.map("map").setView(MAP_CENTER, 11);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  maxZoom:19, attribution:"© OpenStreetMap"
+}).addTo(map);
+
+let existingLayer = null, compLayer = null, blocksLayer = null;
+let zoneLayer = null, markerLayer = null;
+const layersCtrl = L.control.layers(null, null, {collapsed:false}).addTo(map);
+
+function _addOverlay(layer, label) { layersCtrl.addOverlay(layer, label); }
+function _removeOverlay(layer) {
+  if (!layer) return;
+  try { layersCtrl.removeLayer(layer); } catch(_) {}
+  map.removeLayer(layer);
+}
+function clearScoreLayers() {
+  [existingLayer, compLayer, zoneLayer, markerLayer].forEach(l => _removeOverlay(l));
+  existingLayer = compLayer = zoneLayer = markerLayer = null;
+}
+
+// ── Apply brand theme ─────────────────────────────────────────
+function applyBrand(brand) {
+  const meta   = BRAND_META[brand];
+  const params = BRAND_PARAMS[brand];
+
+  // CSS variable
+  document.documentElement.style.setProperty("--brand-color", meta.color);
+
+  // Header
+  document.getElementById("header-logo").textContent  = meta.logo;
+  document.getElementById("header-title").textContent = meta.title;
+
+  // Legend
+  document.getElementById("legend-existing-dot").style.background = meta.color;
+  document.getElementById("legend-existing-lbl").textContent       = meta.legend;
+
+  // Sliders
+  document.getElementById("radius").value = params.radius_miles;
+  document.getElementById("beta").value   = params.beta;
+  document.getElementById("K").value      = params.K;
+  document.getElementById("W1").value     = params.W1;
+  document.getElementById("W2").value     = params.W2;
+  document.getElementById("W3").value     = params.W3;
+}
+
+// ── Brand dropdown handler ────────────────────────────────────
+document.getElementById("brand-select").addEventListener("change", function() {
+  currentBrand = this.value;
+  applyBrand(currentBrand);
+  clearScoreLayers();
+  document.getElementById("top-list").innerHTML =
+    `<li style="color:#aaa;list-style:none;padding:8px 0">Click Recompute for ${BRAND_META[currentBrand].title.split("–")[0].trim()}…</li>`;
+  document.getElementById("stat-bar").style.display = "none";
+  recompute();
+});
+
+// ── Block groups ──────────────────────────────────────────────
+async function loadBlocks() {
+  if (blocksLayer) { _removeOverlay(blocksLayer); blocksLayer = null; }
+  try {
+    const geojson = await (await fetch("/blocks")).json();
+    if (!geojson.features?.length) return;
+    const color = BRAND_META[currentBrand].color;
+    blocksLayer = L.geoJSON(geojson, {
+      style: { color, weight:1, fillColor: color, fillOpacity:0.08 },
+      onEachFeature(f, layer) {
+        const p = f.properties || {};
+        layer.bindTooltip(
+          `<b>GEOID:</b> ${p.GEOID ?? ""}<br/>
+           <b>Population:</b> ${money(p.population)}<br/>
+           <b>Pop/sq mi:</b> ${money(p.pop_per_sqmi)}<br/>
+           <b>Median income:</b> $${money(p.median_income)}`,
+          {sticky:true}
+        );
+      }
+    }).addTo(map);
+    _addOverlay(blocksLayer, "Block groups");
+  } catch(e) { console.error("[blocks]", e); }
+}
+
+// ── Draw results ──────────────────────────────────────────────
+function draw(payload) {
+  clearScoreLayers();
+  const brandColor = BRAND_META[currentBrand].color;
+  const brandLabel = BRAND_META[currentBrand].legend;
+
+  // Existing stores
+  if (payload.existing_ht?.length) {
+    existingLayer = L.layerGroup(payload.existing_ht.map(([lat, lon]) =>
+      L.circleMarker([lat, lon], {
+        radius:7, color: brandColor, weight:2,
+        fillColor: brandColor, fillOpacity:0.85
+      }).bindTooltip(brandLabel)
+    )).addTo(map);
+    _addOverlay(existingLayer, brandLabel);
+  }
+
+  // Competitors
+  if (payload.competitors?.length) {
+    compLayer = L.layerGroup(payload.competitors.map(c =>
+      L.circleMarker([c.lat, c.lon], {
+        radius:6, color:"#e65100", weight:1.5,
+        fillColor:"#ff7043", fillOpacity:0.75
+      }).bindTooltip(`Competitor: ${c.brand}`)
+    )).addTo(map);
+    _addOverlay(compLayer, "Competitors");
+  }
+
+  // Stats bar
+  document.getElementById("stat-bar").style.display = "flex";
+  document.getElementById("stat-cands").textContent  = (payload.n_cands  ?? "—").toLocaleString();
+  document.getElementById("stat-stores").textContent = payload.n_stores ?? "—";
+  document.getElementById("stat-comp").textContent   = payload.n_comp   ?? "—";
+
+  // Top-10
+  const ol = document.getElementById("top-list");
+  ol.innerHTML = "";
+  if (payload.top10?.length) {
+    zoneLayer   = L.layerGroup().addTo(map);
+    markerLayer = L.layerGroup().addTo(map);
+
+    payload.top10.forEach((p, i) => {
+      L.circle([p.lat, p.lon], {
+        radius: 1.0 * 1609.344, color:"#1565C0", weight:1.5,
+        fillColor:"#1e88e5", fillOpacity:0.08, interactive:false
+      }).addTo(zoneLayer);
+
+      const m = L.circleMarker([p.lat, p.lon], {
+        radius:8, color:"#0d47a1", weight:2,
+        fillColor:"#1565C0", fillOpacity:0.9
+      }).bindPopup(`
+        <b>Recommended Site #${i+1}</b><br/>
+        <b>Score:</b> ${fmt2(p.score)}<br/>
+        <b>Stores/10k:</b> ${fmt2(p.stores_per_10k)}<br/>
+        <b>Median income:</b> $${money(p.income_med)}<br/>
+        <b>Access score:</b> ${fmt2(p.access_score_dj)}
+      `).bindTooltip(`#${i+1} · score ${fmt2(p.score)}`, {sticky:true, direction:"top"})
+        .addTo(markerLayer);
+
+      const li = document.createElement("li");
+      li.innerHTML = `
+        <span class="rank-badge">${i+1}</span>
+        <b>score = ${fmt2(p.score)}</b>
+        <div class="kpi-grid">
+          <span class="k">Stores/10k</span><span class="v">${fmt2(p.stores_per_10k)}</span>
+          <span class="k">Median income</span><span class="v">$${money(p.income_med)}</span>
+          <span class="k">Access score</span><span class="v">${fmt2(p.access_score_dj)}</span>
+          <span class="k">Comp. score</span><span class="v">${fmt2(p.score)}</span>
+        </div>`;
+      li.addEventListener("mouseenter", () => m.openPopup());
+      li.addEventListener("click", () => { map.setView([p.lat, p.lon], 13); m.openPopup(); });
+      ol.appendChild(li);
+      m.on("click", () => zoneLayer.bringToFront());
+    });
+
+    _addOverlay(zoneLayer,   "Top-10 Search Zones");
+    _addOverlay(markerLayer, "Top-10 Points");
+  }
+}
+
+// ── Recompute ─────────────────────────────────────────────────
+let recomputeAbort = null;
+async function recompute() {
+  if (recomputeAbort) recomputeAbort.abort();
+  recomputeAbort = new AbortController();
+
+  const W1 = parseFloat(document.getElementById("W1").value);
+  const W2 = parseFloat(document.getElementById("W2").value);
+  const W3 = parseFloat(document.getElementById("W3").value);
+  if (Math.abs(W1+W2+W3 - 1.0) > 0.05) {
+    alert(`W1+W2+W3 = ${(W1+W2+W3).toFixed(2)} — must sum to 1.0`);
+    return;
+  }
+
+  const body = {
+    brand:        currentBrand,
+    radius_miles: parseFloat(document.getElementById("radius").value),
+    beta:         parseFloat(document.getElementById("beta").value),
+    K:            parseInt(document.getElementById("K").value, 10),
+    W1, W2, W3,
+  };
+
+  const btn = document.getElementById("recompute-btn");
+  btn.disabled = true;
+  btn.textContent = "⏳ Computing…";
+
+  try {
+    const res     = await fetch("/recompute", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify(body), signal: recomputeAbort.signal,
+    });
+    const payload = await res.json();
+    if (!payload.ok) { alert(payload.error || "Server error"); return; }
+    draw(payload);
+  } catch(e) {
+    if (e.name !== "AbortError") console.error(e);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "▶ Recompute";
+  }
+}
+
+// ── Auto-normalize weights ────────────────────────────────────
+["W1","W2","W3"].forEach(id => {
+  document.getElementById(id).addEventListener("change", () => {
+    const w1 = parseFloat(document.getElementById("W1").value) || 0;
+    const w2 = parseFloat(document.getElementById("W2").value) || 0;
+    const w3 = parseFloat(document.getElementById("W3").value) || 0;
+    const s  = w1+w2+w3;
+    if (s > 0 && Math.abs(s-1.0) > 0.01) {
+      document.getElementById("W1").value = (w1/s).toFixed(2);
+      document.getElementById("W2").value = (w2/s).toFixed(2);
+      document.getElementById("W3").value = (w3/s).toFixed(2);
+    }
+  });
+});
+
+document.getElementById("recompute-btn").addEventListener("click", e => {
+  e.preventDefault(); recompute();
+});
+
+// ── Init ──────────────────────────────────────────────────────
+applyBrand(currentBrand);
+(async () => {
+  await loadBlocks();
+  recompute();
+})();
+</script>
+</body>
+</html>

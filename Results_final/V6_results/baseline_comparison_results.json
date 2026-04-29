@@ -1,0 +1,59 @@
+{
+  "brand": "Harris Teeter",
+  "city": "Charlotte, NC",
+  "test": "baseline_comparison_v6_ht",
+  "model_params": {
+    "source": "V5_hyperparam_search_6_loocv_extended",
+    "radius_miles": 4.0,
+    "beta": 5.0,
+    "K": 8,
+    "W1": 0.75,
+    "W2": 0.05,
+    "W3": 0.2,
+    "mean_pct_rank": 65.155,
+    "loocv_pct_rank": 66.397
+  },
+  "n_ht_matched": 28,
+  "n_permutations": 10000,
+  "results": [
+    {
+      "name": "Random (expected ~50th)",
+      "mean_pct_rank": 49.38,
+      "permutation_mean": 49.96,
+      "permutation_std": 5.42,
+      "p_value": 0.5462,
+      "p_value_str": "0.5462",
+      "significant": false
+    },
+    {
+      "name": "Population density only",
+      "mean_pct_rank": 44.86,
+      "permutation_mean": 49.99,
+      "permutation_std": 5.39,
+      "p_value": 0.829,
+      "p_value_str": "0.8290",
+      "significant": false
+    },
+    {
+      "name": "Inverse competitor count only",
+      "mean_pct_rank": 60.39,
+      "permutation_mean": 50.03,
+      "permutation_std": 5.37,
+      "p_value": 0.029,
+      "p_value_str": "0.0290",
+      "significant": true
+    },
+    {
+      "name": "Our model (Huff+Dijkstra+Comp)",
+      "mean_pct_rank": 63.4,
+      "permutation_mean": 50.05,
+      "permutation_std": 5.49,
+      "p_value": 0.0087,
+      "p_value_str": "0.0087",
+      "significant": true
+    }
+  ],
+  "gain_over_population": 18.54,
+  "gain_over_comp_only": 3.01,
+  "gain_over_random": 14.02
+}

@@ -1,0 +1,37 @@
+V5 HYPERPARAM SEARCH 2 — Coordinate Descent — Harris Teeter Charlotte
+=================================================================
+
+METHOD: Coordinate descent (2 rounds)
+  Round 1A: search radius/beta/K  with W=0.4/0.3/0.3
+  Round 1B: search W1/W2/W3       with best r/b/K from 1A
+  Round 2A: re-search radius/beta/K with W from 1B
+  Round 2B: re-search W1/W2/W3    with best r/b/K from 2A
+
+ROUND 1
+  Huff params : radius=4.0 beta=3.0 K=3  [55.477th pctile]
+  Weights     : W1=0.6 W2=0.3 W3=0.1  [60.627th pctile]
+
+ROUND 2
+  Huff params : radius=6.0 beta=3.0 K=5  [60.958th pctile]
+  Weights     : W1=0.6 W2=0.3 W3=0.1  [60.958th pctile]
+
+CONVERGED: NO
+
+FINAL BEST COMBINATION
+  radius=6.0mi  beta=3.0  K=5
+  W1=0.6 (Huff demand)   W2=0.3 (Dijkstra)   W3=0.1 (Comp penalty)
+  Mean HT percentile: 60.958th
+
+TOP-10
+  Rank   Radius   Beta   K    W1    W2    W3   MeanPct
+  -------------------------------------------------------
+  1         6.0   3.00   5  0.60  0.30  0.10    60.958
+  2         6.0   3.00   5  0.60  0.30  0.10    60.958
+  3         6.0   3.00   4  0.60  0.30  0.10    60.948
+  4         6.0   3.00   3  0.60  0.30  0.10    60.936
+  5         6.0   3.00   2  0.60  0.30  0.10    60.761
+  6         4.0   3.00   5  0.60  0.30  0.10    60.652
+  7         4.0   3.00   4  0.60  0.30  0.10    60.637
+  8         3.0   3.00   3  0.60  0.30  0.10    60.631
+  9         4.0   3.00   3  0.60  0.30  0.10    60.627
+  10        4.0   3.00   3  0.60  0.30  0.10    60.627

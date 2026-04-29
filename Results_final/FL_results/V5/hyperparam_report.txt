@@ -1,0 +1,31 @@
+V5 HYPERPARAMETER SEARCH REPORT — Food Lion, Charlotte NC
+=================================================================
+
+BEST COMBINATION
+  Catchment radius : 5.0 miles
+  Beta (decay)     : 3.0
+  K (competitors)  : 5
+  W1 (gap score)   : 0.2
+  W2 (income)      : 0.1
+  W3 (access)      : 0.7
+  Mean FL pctile   : 63.38th (higher = better)
+
+INTERPRETATION
+  Mean percentile rank measures how high the model scores
+  actual Food Lion locations vs all 2,450 candidates.
+  A value of 75 means the average real FL store falls in
+  the top 25% of all candidate scores.
+
+TOP-10 CONFIGURATIONS
+  Rank   Radius   Beta   K    W1    W2    W3   MeanPct
+  -------------------------------------------------------
+  1         5.0   3.00   5  0.20  0.10  0.70     63.38
+  2         5.0   3.00   5  0.30  0.10  0.60     63.22
+  3         5.0   3.00   5  0.40  0.10  0.50     63.00
+  4         5.0   3.00   5  0.50  0.10  0.40     62.64
+  5         5.0   3.00   5  0.60  0.10  0.30     62.42
+  6         5.0   3.00   5  0.20  0.20  0.60     62.07
+  7         5.0   3.00   5  0.30  0.20  0.50     61.86
+  8         5.0   3.00   5  0.40  0.20  0.40     61.57
+  9         5.0   3.00   5  0.50  0.20  0.30     61.40
+  10        5.0   3.00   5  0.60  0.20  0.20     61.00

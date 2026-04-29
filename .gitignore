@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.env
+venv/
+env/
+
+# Cache files (large, regenerated on run)
+cache/
+*.pkl
+*.npz
+*.npy
+
+# Large GeoJSON road network files (regenerated from OSM)
+data/charlotte_roads_drive.geojson
+data/atlanta_roads_drive.geojson
+data/la_roads_drive.geojson
+static/charlotte_roads_drive.geojson
+
+# Node / JS
+node_modules/
+package-lock.json
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# LaTeX build artifacts
+*.aux
+*.log
+*.out
+*.toc
+*.bbl
+*.blg
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+
+# Figures (user-provided screenshots — not tracked)
+figures/*.png
+figures/*.jpg
+# Keep the drawio and the guide
+!figures/archimate_exact_v3.drawio
+!figures/FIGURES_NEEDED.txt

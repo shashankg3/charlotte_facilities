@@ -1,0 +1,42 @@
+FIGURES NEEDED FOR Accessibility_Index_Paper_v2.tex
+=====================================================
+
+Save these as PNG files in this folder with the exact filenames listed.
+
+REQUIRED (referenced directly in paper):
+-----------------------------------------
+1. ht_top10_map.png
+   - Open the app (http://localhost:5000), select Harris Teeter
+   - Make sure heatmap + top-10 markers are visible
+   - Zoom to Mecklenburg County
+   - Screenshot the full map panel
+
+2. fl_top10_map.png
+   - Same but switch dropdown to Food Lion
+   - Screenshot the full map panel
+
+SUGGESTED (add as additional figures if journal allows):
+---------------------------------------------------------
+3. study_area_overview.png
+   - Map showing Mecklenburg County block groups shaded by population density
+   - Can use the "Blocks" layer toggle in the app
+
+4. weight_comparison_barchart.png
+   - Simple side-by-side bar chart:
+     HT:  W1=0.75  W2=0.05  W3=0.20
+     FL:  W1=0.10  W2=0.05  W3=0.85
+   - Can be made in Excel or Python/matplotlib
+
+5. loocv_convergence.png
+   - HT: searches 1-6 with LOOCV scores: ~63, 64, 65, 65.4, 66.1, 66.4
+   - FL: searches 1-3 with LOOCV scores: ~68, 71, 72.3
+   - Line chart showing convergence
+
+6. permutation_distribution.png
+   - Two overlapping histograms of random LOOCV distributions
+   - Vertical lines at observed values (63.4 HT, 66.7 FL)
+   - Run: validations/V4_permutation_test.py (it saves a JSON with permutation draws)
+
+7. model_architecture_diagram.png
+   - Simple flowchart: [Huff] + [Dijkstra] + [Competition] --> [Composite Score]
+   - Can draw in PowerPoint or draw.io

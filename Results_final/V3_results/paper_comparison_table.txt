@@ -1,0 +1,73 @@
+================================================================
+  V3 PAPER ROUTING METHOD COMPARISON -- FINAL RESULTS
+  Harris Teeter Site Selection | Charlotte, NC
+  Hardware: HPC gal-i9 | RHEL | Python 3.12.3 | 80 GB RAM
+  Graph: 282,751 nodes | 585,666 edges
+  BGs : 559 | Candidates: 2,450
+================================================================
+
+METHOD COMPARISON TABLE
+---------------------------------------------------------------------------------------
+Method                  Paper                Preprocess   Scoring    Total     Speedup
+---------------------------------------------------------------------------------------
+Standard Dijkstra       Jin & Lu 2022        0s           211.4s     211.4s    1.0x (baseline)
+Parallel Dijkstra       Kang et al. 2020     0s           72.4s      72.4s     2.9x
+Multi-source Dijkstra   This Study           44.3s        0.46s      44.8s     4.7x
+Python CH               Horton et al. 2025   ~35 min*     ~4 min**   ~39 min*  ~0.09x
+---------------------------------------------------------------------------------------
+* Extrapolated: CH interrupted at 95% (533s). Total estimated 30-40 min.
+** Literature value (not directly measured).
+
+NOTES:
+  - All methods run on identical Charlotte road graph (282,751 nodes)
+  - Parallel Dijkstra uses 4 CPU cores (joblib backend)
+  - Multi-source preprocessing builds [559 x 282,751] distance matrix once
+  - After caching, multi-source scoring = 0.46s per run (column lookups only)
+  - Python CH: pure Python implementation (OSRM C++ would be ~5 min preprocessing)
+  - Paper 3 (Horton et al. 2025) primary contribution is EDE facility location
+    optimization, not routing -- CH/OSRM is their routing backend only
+
+DETAILED TIMINGS
+----------------
+Paper 1 -- Standard Dijkstra [Jin & Lu 2022]
+  Runs          : 2,450 Dijkstra calls (one per candidate)
+  Nodes/call    : 282,751 (full graph traversal each time)
+  Preprocessing : none
+  Runtime       : 211.4s (3.52 min)
+  Valid scores  : 2,449 / 2,450
+
+Paper 2 -- Parallel Dijkstra [Kang et al. 2020]
+  Runs          : 2,450 Dijkstra calls across 4 cores
+  Nodes/call    : 282,751
+  Preprocessing : none
+  Runtime       : 72.4s (1.21 min) -- ~18.1s per core
+  Speedup       : 2.92x vs Paper 1
+  Valid scores  : 2,449 / 2,450
+
+Our Method -- Multi-source Dijkstra [This Study]
+  Runs          : 1 Dijkstra call (559 BGs simultaneously)
+  Nodes/call    : 282,751
+  Preprocessing : 44.3s  -- builds [559 x 282,751] matrix, cached after first run
+  Scoring       : 0.46s  -- column lookup from cached matrix (2,450 candidates)
+  Total 1st run : 44.8s (0.75 min)
+  Total cached  : 0.46s
+  Speedup       : 4.73x vs Paper 1 | 1.62x vs Paper 2
+  Valid scores  : 2,449 / 2,450
+
+Paper 3 -- Python CH [Horton et al. 2025 -- routing backend only]
+  Algorithm     : Contraction Hierarchies + Bidirectional Dijkstra
+  Preprocessing : ~30-40 min (Python) | ~5 min (OSRM C++, literature)
+  CH progress   : 95% contracted, 549,733 shortcuts, 533s elapsed (interrupted)
+  Queries       : ~3-5 min for 559 BG queries (not measured)
+  Note          : Paper's main contribution is Kolm-Pollak EDE optimization,
+                  not routing. Uses WALKING distances; our model uses DRIVING.
+
+KEY FINDING
+-----------
+Multi-source Dijkstra achieves a 4.7x speedup over standard sequential Dijkstra
+and 1.6x over 4-core parallel Dijkstra. The one-time preprocessing cost (44.3s)
+builds a complete [559 x 282,751] distance matrix. All subsequent scoring runs
+take only 0.46s via cached matrix lookups -- compared to 211.4s per run for
+standard Dijkstra. Python CH preprocessing (30-40 min) is 40-54x slower than
+our preprocessing step.
+================================================================

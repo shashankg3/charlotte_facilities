@@ -1,0 +1,59 @@
+{
+  "brand": "Food Lion",
+  "city": "Charlotte, NC",
+  "test": "baseline_comparison_v6",
+  "model_params": {
+    "source": "V5_hyperparam_search_3_loocv",
+    "radius_miles": 5.5,
+    "beta": 3.5,
+    "K": 6,
+    "W1": 0.1,
+    "W2": 0.05,
+    "W3": 0.85,
+    "mean_pct_rank": 66.691,
+    "loocv_pct_rank": 72.251
+  },
+  "n_fl_matched": 26,
+  "n_permutations": 10000,
+  "results": [
+    {
+      "name": "Random (expected ~50th)",
+      "mean_pct_rank": 56.04,
+      "permutation_mean": 49.94,
+      "permutation_std": 5.65,
+      "p_value": 0.144,
+      "p_value_str": "0.1440",
+      "significant": false
+    },
+    {
+      "name": "Population density only",
+      "mean_pct_rank": 46.32,
+      "permutation_mean": 50.0,
+      "permutation_std": 5.64,
+      "p_value": 0.742,
+      "p_value_str": "0.7420",
+      "significant": false
+    },
+    {
+      "name": "Inverse competitor count only",
+      "mean_pct_rank": 61.81,
+      "permutation_mean": 50.04,
+      "permutation_std": 5.62,
+      "p_value": 0.0166,
+      "p_value_str": "0.0166",
+      "significant": true
+    },
+    {
+      "name": "Our model (Huff+Dijkstra+Comp)",
+      "mean_pct_rank": 66.69,
+      "permutation_mean": 50.05,
+      "permutation_std": 5.65,
+      "p_value": 0.002,
+      "p_value_str": "0.0020",
+      "significant": true
+    }
+  ],
+  "gain_over_population": 20.37,
+  "gain_over_comp_only": 4.88,
+  "gain_over_random": 10.65
+}

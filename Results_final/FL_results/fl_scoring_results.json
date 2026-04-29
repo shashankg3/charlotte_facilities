@@ -1,0 +1,135 @@
+{
+  "brand": "Food Lion",
+  "city": "Charlotte, NC",
+  "weights": {
+    "W1": 0.4,
+    "W2": 0.3,
+    "W3": 0.3
+  },
+  "n_candidates": 2450,
+  "n_fl_stores": 27,
+  "n_competitors": 53,
+  "scoring_time_s": 0.45,
+  "top10": [
+    {
+      "rank": 1,
+      "lat": 35.22712,
+      "lon": -80.746216,
+      "pair_score": 0.5724,
+      "potential_norm": 0.0,
+      "access_norm": 0.0,
+      "s10k_norm": 0.0,
+      "stores_per_10k": 0.6165,
+      "access_score_dj": 0.699,
+      "income_med": 66854.4
+    },
+    {
+      "rank": 2,
+      "lat": 35.249812,
+      "lon": -80.781654,
+      "pair_score": 0.5633,
+      "potential_norm": 0.0,
+      "access_norm": 0.0,
+      "s10k_norm": 0.0,
+      "stores_per_10k": 0.6288,
+      "access_score_dj": 0.702,
+      "income_med": 69589.9
+    },
+    {
+      "rank": 3,
+      "lat": 35.228127,
+      "lon": -80.834602,
+      "pair_score": 0.5183,
+      "potential_norm": 0.0,
+      "access_norm": 0.0,
+      "s10k_norm": 0.0,
+      "stores_per_10k": 0.7013,
+      "access_score_dj": 0.741,
+      "income_med": 81528.3
+    },
+    {
+      "rank": 4,
+      "lat": 35.207804,
+      "lon": -80.789399,
+      "pair_score": 0.481,
+      "potential_norm": 0.0,
+      "access_norm": 0.0,
+      "s10k_norm": 0.0,
+      "stores_per_10k": 0.6503,
+      "access_score_dj": 0.7012,
+      "income_med": 84585.1
+    },
+    {
+      "rank": 5,
+      "lat": 35.283277,
+      "lon": -80.763067,
+      "pair_score": 0.4505,
+      "potential_norm": 0.0,
+      "access_norm": 0.0,
+      "s10k_norm": 0.0,
+      "stores_per_10k": 0.6333,
+      "access_score_dj": 0.6805,
+      "income_med": 66223.4
+    },
+    {
+      "rank": 6,
+      "lat": 35.184846,
+      "lon": -80.73098,
+      "pair_score": 0.3897,
+      "potential_norm": 0.0,
+      "access_norm": 0.0,
+      "s10k_norm": 0.0,
+      "stores_per_10k": 0.6429,
+      "access_score_dj": 0.7073,
+      "income_med": 74863.7
+    },
+    {
+      "rank": 7,
+      "lat": 35.277236,
+      "lon": -80.833791,
+      "pair_score": 0.3771,
+      "potential_norm": 0.0,
+      "access_norm": 0.0,
+      "s10k_norm": 0.0,
+      "stores_per_10k": 0.5465,
+      "access_score_dj": 0.6802,
+      "income_med": 66329.4
+    },
+    {
+      "rank": 8,
+      "lat": 35.305147,
+      "lon": -80.724177,
+      "pair_score": 0.3583,
+      "potential_norm": 0.0,
+      "access_norm": 0.0,
+      "s10k_norm": 0.0,
+      "stores_per_10k": 0.683,
+      "access_score_dj": 0.6963,
+      "income_med": 68765.5
+    },
+    {
+      "rank": 9,
+      "lat": 35.210337,
+      "lon": -80.696879,
+      "pair_score": 0.3522,
+      "potential_norm": 0.0,
+      "access_norm": 0.0,
+      "s10k_norm": 0.0,
+      "stores_per_10k": 0.6596,
+      "access_score_dj": 0.6913,
+      "income_med": 63076.8
+    },
+    {
+      "rank": 10,
+      "lat": 35.271619,
+      "lon": -80.888463,
+      "pair_score": 0.3289,
+      "potential_norm": 0.0,
+      "access_norm": 0.0,
+      "s10k_norm": 0.0,
+      "stores_per_10k": 0.5808,
+      "access_score_dj": 0.6752,
+      "income_med": 66688.2
+    }
+  ]
+}

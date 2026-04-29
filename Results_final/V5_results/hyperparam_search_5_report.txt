@@ -1,0 +1,33 @@
+V5 HYPERPARAM SEARCH 5 -- Extended Grid + LOOCV -- Harris Teeter
+=================================================================
+
+WHY SEARCH 5:
+  Search 4 winner hit grid edges: radius=2.5 (bottom) and K=7 (top)
+  Search 5 extends radius down to 1.0mi and K up to 10
+
+FINAL RESULT  (converged=False)
+  radius=3.0mi  beta=4.5  K=7
+  W1=0.8 (Huff demand)  W2=0.05 (Dijkstra)  W3=0.15 (Comp penalty)
+  Mean pct rank : 64.707th
+  LOOCV pct rank: 66.072th
+
+PROGRESS
+  search_1 : 60.63th
+  search_2 : 60.958th
+  search_3 : 64.706th
+  search_4 : 65.363th
+  search_5 : 66.072th  (improved)
+
+TOP-10 WEIGHT COMBOS (LOOCV-ranked)
+  Rank     W1    W2    W3   MeanPct    LOOCV
+  ---------------------------------------------
+  1      0.80  0.05  0.15    63.705   66.072
+  2      0.85  0.05  0.10    64.383   65.954
+  3      0.75  0.05  0.20    62.731   65.888
+  4      0.75  0.10  0.15    63.153   65.737
+  5      0.80  0.10  0.10    64.013   65.528
+  6      0.85  0.10  0.05    64.707   65.292
+  7      0.75  0.15  0.10    63.514   65.025
+  8      0.80  0.15  0.05    64.206   64.830
+  9      0.75  0.20  0.05    63.681   64.420
+  10     0.70  0.20  0.10    62.909   64.386

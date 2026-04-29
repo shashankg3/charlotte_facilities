@@ -1,0 +1,87 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  background: #f5f5f5;
+  overflow: hidden;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+.ht-header {
+  background: #0B6F69;
+  color: #fff;
+  padding: 14px 20px;
+  font-size: 22px;
+  font-weight: 700;
+  box-shadow: 0 2px 4px rgba(0,0,0,.25);
+}
+
+#map {
+  position: absolute;
+  top: 58px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+/* floating panel */
+.ht-panel {
+  position: absolute;
+  top: 72px;
+  left: 18px;
+  width: 260px;
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 8px 20px rgba(0,0,0,.15);
+  padding: 14px 16px 16px;
+  z-index: 999;
+  max-height: calc(100vh - 90px);
+  overflow-y: auto;
+}
+
+.ht-panel h2 {
+  font-size: 15px;
+  margin: 10px 0 6px;
+  color: #0B6F69;
+}
+
+.ht-panel label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 13px;
+}
+
+.ht-panel hr {
+  margin: 10px 0;
+  border: none;
+  border-bottom: 1px solid #ddd;
+}
+
+#top-list {
+  padding-left: 18px;
+  font-size: 12px;
+  line-height: 1.4;
+  margin: 0;
+}
+
+#top-list li {
+  cursor: pointer;
+}
+
+#top-list li:hover {
+  text-decoration: underline;
+}
+
+/* green numbered marker */
+.ht-green-marker .marker-circle {
+  background: #1e8f4f;
+  color: #fff;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,.25);
+}

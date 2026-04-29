@@ -1,0 +1,31 @@
+V5 HYPERPARAMETER SEARCH REPORT — Harris Teeter, Charlotte NC
+=================================================================
+
+BEST COMBINATION
+  Catchment radius : 4.0 miles
+  Beta (decay)     : 3.0
+  K (competitors)  : 3
+  W1 (gap score)   : 0.6
+  W2 (income)      : 0.3
+  W3 (access)      : 0.1
+  Mean HT pctile   : 60.63th (higher = better)
+
+INTERPRETATION
+  Mean percentile rank measures how high the model scores
+  actual Harris Teeter locations vs all scored candidates.
+  A value of 75 means the average real HT store falls in
+  the top 25% of all candidate scores.
+
+TOP-10 CONFIGURATIONS
+  Rank   Radius   Beta   K    W1    W2    W3   MeanPct
+  -------------------------------------------------------
+  1         4.0   3.00   3  0.60  0.30  0.10     60.63
+  2         4.0   3.00   3  0.50  0.40  0.10     59.76
+  3         4.0   3.00   3  0.60  0.20  0.20     59.41
+  4         4.0   3.00   3  0.50  0.30  0.20     58.46
+  5         4.0   3.00   3  0.60  0.10  0.30     58.35
+  6         4.0   3.00   3  0.40  0.40  0.20     57.03
+  7         4.0   3.00   3  0.50  0.20  0.30     57.00
+  8         4.0   3.00   3  0.40  0.30  0.30     55.48
+  9         4.0   3.00   3  0.40  0.30  0.30     55.48
+  10        4.0   3.00   2  0.40  0.30  0.30     55.40

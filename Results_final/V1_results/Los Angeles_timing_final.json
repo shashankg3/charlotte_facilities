@@ -1,0 +1,18 @@
+{
+  "city": "Los Angeles",
+  "n_road_nodes": 1018083,
+  "n_road_edges": 2190272,
+  "n_candidates": 14208,
+  "n_bg_sources": 6400,
+  "multisource_time_s": 3803.05,
+  "std_measured_s": 8711.52,
+  "std_is_fully_measured": true,
+  "speedup": 2.29,
+  "smart_sources": 6400,
+  "naive_sources": 14208,
+  "n_sources": 6400,
+  "n_chunks": 134,
+  "per_dijkstra_run_s": 0.6131,
+  "available_ram_gb": 0.7,
+  "full_matrix_gb": 48.5
+}

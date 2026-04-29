@@ -1,0 +1,88 @@
+{
+  "benchmark": "V3 Paper Routing Method Comparison",
+  "study_area": "Charlotte, NC -- Harris Teeter Site Selection",
+  "hardware": "HPC gal-i9 cluster | Red Hat Enterprise Linux | Python 3.12.3",
+  "ram_gb": 80,
+  "n_road_nodes": 282751,
+  "n_road_edges": 585666,
+  "n_candidates": 2450,
+  "n_bg_sources": 559,
+
+  "methods": {
+    "paper1_standard_dijkstra": {
+      "paper": "Jin & Lu 2022",
+      "algorithm": "Standard (Sequential) Dijkstra",
+      "description": "2450 individual scipy Dijkstra calls, one per candidate, full graph each time",
+      "preprocessing_s": 0,
+      "preprocessing_note": "none",
+      "query_scoring_s": 211.4,
+      "total_s": 211.4,
+      "total_min": 3.52,
+      "valid_scores": 2449,
+      "n_dijkstra_calls": 2450,
+      "nodes_per_call": 282751,
+      "is_extrapolated": false
+    },
+    "paper2_parallel_dijkstra": {
+      "paper": "Kang et al. 2020",
+      "algorithm": "Parallel Dijkstra (P-E2SFCA)",
+      "description": "2450 Dijkstra calls distributed across 4 CPU cores via joblib",
+      "preprocessing_s": 0,
+      "preprocessing_note": "none",
+      "query_scoring_s": 72.4,
+      "total_s": 72.4,
+      "total_min": 1.21,
+      "valid_scores": 2449,
+      "n_dijkstra_calls": 2450,
+      "n_cores": 4,
+      "nodes_per_call": 282751,
+      "speedup_vs_paper1": 2.92,
+      "is_extrapolated": false
+    },
+    "our_method_multisource_dijkstra": {
+      "paper": "This Study",
+      "algorithm": "Multi-source Dijkstra",
+      "description": "Single scipy Dijkstra call with all 559 BG centroids as simultaneous sources. Builds [559 x 282751] distance matrix once, then scoring is column lookups.",
+      "preprocessing_s": 44.3,
+      "preprocessing_note": "Build bg_dist_matrix [559 x 282751] -- saved to cache after first run",
+      "query_scoring_s": 0.46,
+      "total_s": 44.76,
+      "total_min": 0.75,
+      "valid_scores": 2449,
+      "n_dijkstra_calls": 1,
+      "bg_dist_matrix_shape": [559, 282751],
+      "speedup_vs_paper1": 4.73,
+      "speedup_vs_paper2": 1.62,
+      "is_extrapolated": false
+    },
+    "paper3_python_ch": {
+      "paper": "Horton et al. 2025",
+      "algorithm": "Contraction Hierarchies + Bidirectional Dijkstra (Python)",
+      "description": "CH contracts 282751 nodes by rank, adds shortcuts. Query phase uses bidirectional Dijkstra upward through contracted graph. NOTE: Horton et al. primary contribution is EDE facility location optimization -- CH/OSRM is only their routing backend.",
+      "routing_mode": "walking (OSRM); our benchmark uses driving (35 mph) for consistency",
+      "preprocessing_s": null,
+      "preprocessing_note": "Interrupted at 95% after 533s. Extrapolated total: ~1800-2400s (30-40 min). Pure Python implementation -- OSRM C++ backend would be ~5 min.",
+      "preprocessing_extrapolated_s": 2100,
+      "preprocessing_extrapolated_min": 35,
+      "query_scoring_s": null,
+      "query_scoring_note": "Not measured (CH preprocessing not completed). Literature: ~3-5 min for 559 queries.",
+      "total_s": null,
+      "total_min": null,
+      "is_extrapolated": true,
+      "ch_progress_at_interrupt": "95% contracted, 549733 shortcuts added, 533s elapsed",
+      "osrm_cpp_note": "OSRM C++ preprocessing: ~5 min (literature value, Horton et al. 2025)"
+    }
+  },
+
+  "summary_table": {
+    "headers": ["Method", "Paper", "Preprocessing", "Scoring", "Total", "Speedup vs P1"],
+    "rows": [
+      ["Standard Dijkstra",      "Jin & Lu 2022",      "0s",          "211.4s",  "211.4s (3.5 min)",  "1.0x (baseline)"],
+      ["Parallel Dijkstra",      "Kang et al. 2020",   "0s",          "72.4s",   "72.4s (1.2 min)",   "2.9x"],
+      ["Multi-source Dijkstra",  "This Study",         "44.3s",       "0.46s",   "44.8s (0.75 min)",  "4.7x"],
+      ["Python CH",              "Horton et al. 2025", "~35 min (extrap.)", "~4 min (lit.)", "~39 min (extrap.)", "~0.09x"]
+    ]
+  },
+
+  "key_finding": "Multi-source Dijkstra (our method) achieves 4.7x speedup over standard sequential Dijkstra and 1.6x over parallel Dijkstra, while preprocessing completes in 44.3s vs 30-40 min for Python CH. After preprocessing, subsequent scoring runs take only 0.46s via cached distance matrix lookups."
+}

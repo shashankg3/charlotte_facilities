@@ -1,0 +1,4 @@
+City,N_Road_Nodes,N_Road_Edges,N_BG_Sources,N_Candidates,Matrix_GB,N_Chunks,Fair,MultiSource_Time_s,MultiSource_Time_min,Std_Dijkstra_Time_s,Std_Dijkstra_Time_min,Speedup,Std_Fully_Measured,Per_Std_Run_s
+Charlotte,282751,585666,559,2450,1.18,1,YES,42.7,0.71,196.8,3.28,4.63,TRUE,0.0804
+Atlanta,916452,1903720,1800,1148,7.84,1,YES,174.0,2.90,328.6,5.48,1.89,TRUE,0.1826
+Los Angeles,1018083,2190272,6400,14208,48.55,1,YES,2268.0,37.80,5620.6,93.7,2.48,FALSE (extrapolated at 70%),0.3959

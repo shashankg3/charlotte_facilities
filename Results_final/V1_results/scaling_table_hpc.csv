@@ -1,0 +1,2 @@
+City,Road Nodes,BG Sources,Candidates,RAM Budget (GB),Multi-src Chunks,Multi-src Time,Std Dijkstra Time,Speedup,Fair (1 chunk),Std Extrapolated
+Los Angeles,1018083,6400,14208,68.0,1,37.9 min,1.55 hr,2.46x,YES,False

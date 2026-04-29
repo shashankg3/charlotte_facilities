@@ -1,0 +1,136 @@
+{
+  "brand": "Food Lion",
+  "city": "Charlotte, NC",
+  "test": "hyperparam_search_2_coordinate_descent",
+  "best_params": {
+    "radius_miles": 6.0,
+    "beta": 3.0,
+    "K": 5,
+    "W1": 0.2,
+    "W2": 0.1,
+    "W3": 0.7,
+    "mean_pct_rank": 64.84,
+    "converged": false
+  },
+  "round1": {
+    "huff_params": {
+      "radius": 5.0,
+      "beta": 3.0,
+      "K": 5
+    },
+    "huff_score": 59.545,
+    "weights": {
+      "W1": 0.2,
+      "W2": 0.1,
+      "W3": 0.7
+    },
+    "weight_score": 63.382
+  },
+  "round2": {
+    "huff_params": {
+      "radius": 6.0,
+      "beta": 3.0,
+      "K": 5
+    },
+    "huff_score": 64.84,
+    "weights": {
+      "W1": 0.2,
+      "W2": 0.1,
+      "W3": 0.7
+    },
+    "weight_score": 64.84
+  },
+  "converged": false,
+  "top10": [
+    {
+      "radius": 6.0,
+      "beta": 3.0,
+      "K": 5,
+      "W1": 0.2,
+      "W2": 0.1,
+      "W3": 0.7,
+      "mean_pct_rank": 64.84
+    },
+    {
+      "radius": 6.0,
+      "beta": 3.0,
+      "K": 5,
+      "W1": 0.2,
+      "W2": 0.1,
+      "W3": 0.7,
+      "mean_pct_rank": 64.84
+    },
+    {
+      "radius": 6.0,
+      "beta": 3.0,
+      "K": 4,
+      "W1": 0.2,
+      "W2": 0.1,
+      "W3": 0.7,
+      "mean_pct_rank": 64.755
+    },
+    {
+      "radius": 6.0,
+      "beta": 3.0,
+      "K": 3,
+      "W1": 0.2,
+      "W2": 0.1,
+      "W3": 0.7,
+      "mean_pct_rank": 64.592
+    },
+    {
+      "radius": 6.0,
+      "beta": 3.0,
+      "K": 2,
+      "W1": 0.2,
+      "W2": 0.1,
+      "W3": 0.7,
+      "mean_pct_rank": 64.469
+    },
+    {
+      "radius": 6.0,
+      "beta": 2.5,
+      "K": 5,
+      "W1": 0.2,
+      "W2": 0.1,
+      "W3": 0.7,
+      "mean_pct_rank": 64.34
+    },
+    {
+      "radius": 6.0,
+      "beta": 2.5,
+      "K": 4,
+      "W1": 0.2,
+      "W2": 0.1,
+      "W3": 0.7,
+      "mean_pct_rank": 64.24
+    },
+    {
+      "radius": 6.0,
+      "beta": 2.5,
+      "K": 3,
+      "W1": 0.2,
+      "W2": 0.1,
+      "W3": 0.7,
+      "mean_pct_rank": 64.127
+    },
+    {
+      "radius": 6.0,
+      "beta": 2.5,
+      "K": 2,
+      "W1": 0.2,
+      "W2": 0.1,
+      "W3": 0.7,
+      "mean_pct_rank": 63.861
+    },
+    {
+      "radius": 3.0,
+      "beta": 3.0,
+      "K": 5,
+      "W1": 0.2,
+      "W2": 0.1,
+      "W3": 0.7,
+      "mean_pct_rank": 63.857
+    }
+  ]
+}
