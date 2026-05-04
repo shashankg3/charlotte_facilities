@@ -1,14 +1,10 @@
 \documentclass[conference]{IEEEtran}
-% ----------------------------------------------------------------
-% NOTE: If submitting to an IEEE Transactions journal instead of
-% a conference, change the line above to:
-%   \documentclass[journal]{IEEEtran}
-% and reformat the \author block to match the journal style.
-% ----------------------------------------------------------------
-\IEEEoverridecommandlockouts
 
 \usepackage{cite}
 \usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{float}
+\usepackage{siunitx}
 \usepackage{graphicx}
 \usepackage{textcomp}
 \usepackage{xcolor}
@@ -23,773 +19,1716 @@
 
 \begin{document}
 
-\title{A Composite Spatial Accessibility Index for Grocery Store\\
-Site Selection: Evidence from Charlotte, NC}
+\title{A Composite Spatial Accessibility Index for Urban Facility Location}
 
-\author{
-\IEEEauthorblockN{G.~Shashank\IEEEauthorrefmark{1},
-                  H.~Tigulla\IEEEauthorrefmark{1}, and
-                  R.~Erlemann\IEEEauthorrefmark{1}}
-\IEEEauthorblockA{
-\IEEEauthorrefmark{1}Department of Geography and Earth Sciences,
-University of North Carolina at Charlotte,
-Charlotte, NC, USA\\
-\{sgajula3, htigull1, rerlemann\}@charlotte.edu}
-}
+\author{\IEEEauthorblockN{Rasmus Erlemann, Hruthika Goud Tigulla, Shashank Gajula}
+\IEEEauthorblockA{\textit{College of Computing and Informatics}\\
+\textit{University of North Carolina at Charlotte}\\
+Charlotte, North Carolina, USA\\
+\{rerlemann, htigull1, sgajula3\}@charlotte.edu}}
 
 \maketitle
 
+% =============================================================
 \begin{abstract}
-Choosing where to open a new grocery store is a spatial decision that
-depends on at least three factors simultaneously: the demand that can
-be captured from the surrounding population, how easily that population
-can reach the candidate site through the road network, and how many
-competing stores are already serving the same area. In practice, most
-site screening tools treat these factors in isolation or rely on
-informal rules of thumb, which leads to inconsistent rankings across
-candidate sites and across different store brands.
+% =============================================================
+Choosing where to open a new store or clinic is a decision that affects
+thousands of people, yet the three factors that matter most are almost
+never analyzed together: how many potential customers live nearby, how
+quickly they can drive there on real roads, and how many competing
+facilities already serve the area. We introduce a composite
+accessibility index that combines all three into a single bounded,
+weight-controllable score for every candidate location, letting
+decision-makers compare sites on equal footing.
 
-This paper proposes a composite spatial accessibility index that
-combines a gravity-based demand model, a road-network travel-time
-score, and a competition density penalty into a single normalised
-score for every candidate site in a study area. The model parameters
-are calibrated separately for each brand using leave-one-out
-cross-validation, which avoids the circular reasoning that arises when
-known store locations are used both to train and to evaluate the same
-model.
+The index fuses the Huff gravity model (consumer demand capture), a
+road-network reachability score (average driving time weighted by
+population), and a population-normalized count of existing facilities.
+Computing road travel times at city scale is the main computational
+bottleneck. We show that by exploiting the symmetry of undirected road
+graphs, shortest paths can be computed from the smaller of the two
+source sets in a single compiled operation, achieving $4.6\times$
+speedup for Charlotte, NC over running one query per candidate site.
 
-We apply the framework to two grocery chains operating in Mecklenburg
-County, North Carolina: Harris Teeter, a premium chain, and Food Lion,
-a value chain. Both calibrated models place known store locations
-significantly above random chance and outperform simpler baselines
-built on population density alone or competitor counts alone. The
-calibrated weights recover a clear strategic difference between the
-two chains without any prior assumption about their behaviour. The
-paper closes with ranked top-ten candidate sites for each brand and
-a discussion of how the framework can be extended to other retail
-contexts.
+The framework is validated through four experiments: runtime scaling
+across three US metropolitan road networks of increasing size~(V1),
+weight calibration against the known store networks of two grocery
+chains with contrasting market strategies~(V2), a head-to-head
+comparison with routing methods from three recent published
+studies~(V3), and a permutation significance test confirming the
+calibration is non-random~(V4). For Harris Teeter, a premium chain,
+calibration recovers $W_1 = 0.984$ (demand-first siting,
+$p = 0.0099$). For Food Lion, a value chain, calibration recovers
+$W_3 = 0.85$ (competition-avoidance siting, $p = 0.0020$). The two
+weight vectors are near mirror images of one another, and neither was
+assumed in advance. The complete pipeline uses only publicly available
+OpenStreetMap road data and US Census demographics, and runs in
+standard Python without external routing infrastructure.
 \end{abstract}
 
 \begin{IEEEkeywords}
-site selection, spatial accessibility, Huff gravity model,
-multi-source Dijkstra, competition index, leave-one-out
-cross-validation, grocery retail
+facility location, spatial accessibility, Huff gravity model,
+Dijkstra shortest path, geographic information systems, urban planning,
+grocery retail, leave-one-out cross-validation
 \end{IEEEkeywords}
 
+% =============================================================
 \section{Introduction}
-\label{sec:intro}
+% =============================================================
 
-Retail location decisions have been studied for more than half a
-century, yet most operational tools used by site selection teams still
-rely on demographic heat maps, fixed-radius drive-time buffers, or
-internal scoring spreadsheets whose weights are set by judgement rather
-than by data. Each of these shortcuts ignores at least one of the
-three factors that determine whether a new store will succeed: the
-amount of accessible demand, the ease of reaching the site through
-the road network, and the level of competition already present in the
-trade area.
+The Facility Location Problem asks which candidate site best balances
+demand, travel convenience, and market competition. Classical
+formulations such as the $p$-median problem~\cite{ReVelle2005} assume
+straight-line distances, but circuitous urban road networks can change
+which site ranks highest. Evaluating candidates on actual road-network
+travel time therefore requires shortest-path distances between every
+candidate and every residential demand zone, a computation whose cost
+grows with network size and candidate count.
 
-A grocery chain choosing between two candidate parcels in the same
-suburb needs to know all three things at once. If demand is high but
-five competitors are already within two miles, the site is
-unattractive. If demand is moderate but no other store of the same
-type exists within five road miles, the site may capture a much larger
-share of the local market. If accessibility is poor because the only
-road into the parcel is a congested two-lane arterial, even abundant
-demand will not translate into footfall. None of these judgements can
-be made from a single layer of GIS data. They require a combined
-score that respects the trade-offs.
+Gravity-based models, particularly the Huff model~\cite{Huff1964},
+allocate demand probabilistically across competing facilities, but
+most implementations rely on Euclidean distances and are disconnected
+from network accessibility measures. Network accessibility
+studies~\cite{Hansen1959,Xu2020} quantify reachability but rarely
+account for market dynamics. Gravity models consequently overestimate
+accessibility in poorly connected areas, while accessibility studies
+ignore market saturation.
 
-This paper develops such a score. We define a composite spatial
-accessibility index built from three components. The first component
-is a Huff gravity demand potential, which estimates the share of
-nearby population that a candidate site would capture given a set of
-existing competitors. The second component is a road-network
-accessibility score derived from shortest-path travel times computed
-on the OpenStreetMap road graph using a multi-source Dijkstra search.
-The third component is a competition density penalty, computed as the
-number of competing stores per ten thousand residents within the
-catchment radius. The three components are normalised onto a common
-scale and combined into a single score using brand-specific weights.
+We introduce a site selection framework that combines Huff market
+potential, a Hansen road-network accessibility index, and a
+stores-per-capita competition metric into a single bounded score.
+Decision-makers can compare thousands of candidates and adjust scoring
+weights to match their priorities, without GIS expertise or external
+routing infrastructure. The accessibility computation uses
+Multi-source Dijkstra via SciPy's compiled C backend, exploiting the
+fact that on undirected road graphs distances can be computed from
+whichever source set is smaller---this is a standard property of
+undirected graphs, applied here to make the framework tractable at
+city scale (Section~\ref{sec:method}). We do not claim Multi-source
+Dijkstra as a novel algorithm; our contribution is its systematic
+application within a composite scoring pipeline that is validated
+quantitatively, and its deployment for brand-specific weight
+calibration across two grocery chains with fundamentally different
+location strategies.
 
-The weights are not assumed. We calibrate them for each brand using
-leave-one-out cross-validation over an iterative grid search on
-known store locations. For every candidate parameter combination,
-each known store is held out in turn, the remaining stores are used
-as ground truth, and the held-out store's percentile rank among all
-candidate sites is recorded. The mean rank across all held-out
-stores is the calibration objective. This procedure prevents the
-model from rewarding itself for ranking a store highly when that
-store also appears in its own competitor set.
+The strategic contrast matters as much as the computation. Harris
+Teeter is a premium chain whose known store locations imply a
+demand-first strategy: locate where income and population density are
+highest. Food Lion is a value chain whose locations imply a
+competition-avoidance strategy: locate where the market is underserved
+regardless of raw demand. A site selection model that cannot
+distinguish these strategies is not useful for either chain. The
+composite index, calibrated separately for each brand via
+leave-one-out cross-validation, recovers both strategies from observed
+store locations without any prior assumption about chain behaviour.
 
-We apply the framework to Mecklenburg County, North Carolina, and
-calibrate it separately for two grocery chains with markedly
-different market positions. Harris Teeter is a premium chain that
-competes on store experience and tends to follow population demand.
-Food Lion is a value chain with broader geographic coverage and a
-stronger incentive to find underserved gaps in the competitive map.
-A model that is doing what it claims to do should recover this
-strategic contrast from the data, and it does.
-
-The paper makes four contributions:
+The main contributions of this paper are:
 \begin{enumerate}
-\item A composite scoring framework that integrates demand,
-      accessibility, and competition into a single brand-specific
-      index, with explicit normalisation and weight calibration steps.
-\item A leave-one-out cross-validation pipeline that calibrates the
-      framework for any chain with at least twenty store locations
-      in the study area, with a permutation test and three baseline
-      comparisons that establish statistical significance.
-\item A multi-source Dijkstra implementation that computes the full
-      block-group-to-network-node distance matrix in a single graph
-      traversal, reducing routing pre-computation time by roughly a
-      factor of five compared with sequential single-source
-      Dijkstra on the same hardware.
-\item Ranked top-ten candidate sites for Harris Teeter and Food
-      Lion in Mecklenburg County, with a discussion of how the
-      contrasting calibrated weights translate into different
-      spatial patterns of recommendation.
+    \item A composite spatial accessibility index integrating Huff
+    market potential, Hansen road-network accessibility, and a
+    population-normalized competition penalty into a single
+    weight-controllable candidate score (Section~\ref{sec:method}).
+    \item A reproducible pipeline using only public OpenStreetMap
+    and US Census data, running on commodity hardware without
+    proprietary routing software or GIS infrastructure.
+    \item A four-experiment validation protocol (V1--V4): runtime
+    scaling across three US cities, retrospective weight calibration
+    against real store networks for two grocery chains with contrasting
+    strategies, a head-to-head routing comparison with three published
+    methods, and a permutation significance test confirming calibration
+    is non-random.
+    \item Empirical evidence that running Multi-source Dijkstra from
+    block groups---which are structurally fewer than candidate sites
+    in any city because each Census block group contains multiple
+    commercial parcels---achieves $1.9$--$4.6\times$ speedup over
+    standard sequential Dijkstra and outperforms OSRM Contraction
+    Hierarchies on one-to-all accessibility workloads.
+    \item Ranked top-ten candidate sites for Harris Teeter and Food
+    Lion in Mecklenburg County, with a discussion of how the
+    contrasting calibrated weights produce qualitatively different
+    spatial recommendation patterns.
 \end{enumerate}
 
-The remainder of the paper is organised as follows.
-Section~\ref{sec:related} reviews prior work on retail location,
-spatial accessibility, and competitive facility location.
-Section~\ref{sec:data} describes the study area, the road network
-extraction, and the demographic and store location data sources.
-Section~\ref{sec:method} develops the three scoring components and
-the composite formula, and presents the multi-source Dijkstra
-benchmark. Section~\ref{sec:calib} describes the calibration
-procedure and reports the calibrated parameters for both brands.
-Section~\ref{sec:valid} reports the permutation test and the
-baseline comparison. Section~\ref{sec:recommendations} presents
-the top-ten recommendations for each brand. Section~\ref{sec:discussion}
-discusses what the calibrated weights reveal and the limitations of
-the framework. Section~\ref{sec:conclusion} concludes.
+The full pipeline runs on commodity hardware using only publicly
+available Census and OpenStreetMap data, with no proprietary routing
+engine, GIS license, or external infrastructure.
 
+% =============================================================
 \section{Related Work}
-\label{sec:related}
+% =============================================================
 
-The framework developed in this paper draws on four streams of prior
-work: gravity models of retail demand, spatial accessibility measures,
-competitive facility location, and shortest-path computation on road
-networks.
+\subsection{Facility Location and Gravity Models}
 
-\subsection{Gravity models of retail demand}
+Classical facility location models ($p$-median~\cite{Hakimi1964},
+$p$-centre, maximal covering~\cite{Church1974}, set
+covering~\cite{Toregas1971}) provide rigorous optimization frameworks
+but rely on simplified distance metrics and homogeneous
+demand~\cite{ReVelle2005,Owen1998,Farahani2012,Drezner2024}. Equity
+considerations have also been incorporated into location
+planning~\cite{Morrill1977}. The Huff model~\cite{Huff1964} treats
+consumer choice probabilistically, allocating demand inversely
+proportional to a power of travel distance~\cite{Wilson1971,
+Nakanishi1974,Fotheringham1983,Liang2020}.
+Network-aware extensions account for patronage patterns shaped by
+competitor distribution and transportation
+structure~\cite{Verhetsel2022}, but most implementations
+still use Euclidean impedance and do not integrate accessibility as a
+separate scored component.
 
-The Huff probabilistic trading area model \cite{huff1964} remains the
-dominant formulation in retail demand estimation. Huff modelled the
-probability that a consumer at origin $i$ patronises store $j$ as the
-ratio of that store's attractiveness divided by distance raised to a
-decay exponent, against the same quantity summed over all alternatives.
-Nakanishi and Cooper \cite{nakanishi1974} reformulated the Huff model
-as a multiplicative competitive interaction model and showed how its
-parameters can be estimated by least squares on observed market
-shares. Fotheringham \cite{fotheringham1988} extended the framework
-to recognise that consumers do not consider every store in a region,
-only a smaller choice set defined by perception and habit. More
-recent retail location studies use revealed preference methods.
-Ellickson, Houghton, and Timmins \cite{ellickson2012} estimated
-network economies in United States grocery chains and found that
-chains cluster near existing stores up to a competitive threshold,
-beyond which the marginal store cannibalises rather than reinforces
-demand.
+\subsection{Network Accessibility and Travel-Time Realism}
 
-\subsection{Spatial accessibility measures}
+Hansen~\cite{Hansen1959} defined accessibility as the ease with which
+opportunities can be reached, a concept now standard in transportation
+planning~\cite{Geurs2004,Luo2003,Wang2012}. Empirical work shows that
+accessibility patterns follow spatial laws shaped by road network
+structure~\cite{Xu2020} and that socioeconomic context exposes
+inequities hidden under pure travel-time measures~\cite{Kharel2024},
+motivating demand weights that capture both volume and purchasing power.
 
-Hansen \cite{hansen1959} introduced spatial accessibility as a
-gravity potential, defining the accessibility of a location as the
-sum of opportunities at all reachable destinations weighted by an
-impedance function of distance. Geurs and van Wee \cite{geurs2004}
-review the four principal classes of accessibility measures
-(infrastructure-based, location-based, person-based, and
-utility-based) and argue that location-based gravity measures remain
-the most useful for infrastructure and land-use planning. Handy and
-Niemeier \cite{handy1997} contrast cumulative-opportunity measures,
-which count destinations within a fixed cutoff, against potential
-measures, which weight destinations continuously by distance. The
-formulation used in this paper follows the potential measure
-tradition. Luo and Wang \cite{luo2003} developed the two-step floating
-catchment area method to measure spatial access to health care
-facilities, an approach that has since been adapted to grocery store
-access in food desert studies. Apparicio, Cloutier, and Shearmur
-\cite{apparicio2007} applied accessibility measures to evaluate
-supermarket access in Montreal and showed that conclusions about
-underserved neighbourhoods are sensitive to the choice of impedance
-function.
+\subsection{Competition and Market Saturation in Site Selection}
 
-\subsection{Competitive facility location}
+Market saturation is typically omitted from accessibility models.
+Food desert studies document how grocery access varies by neighbourhood
+income and race~\cite{Apparicio2007,Beaulac2009,VerPloeg2012}, but
+focus on measuring deficits rather than scoring candidate sites. A
+population-normalized competition index fills this gap, capturing
+whether supply keeps pace with demand in each candidate's catchment.
 
-Hotelling's stability in competition result \cite{hotelling1929}
-established the basic intuition that competing firms tend to locate
-near one another to capture the largest share of a linear market, and
-this insight has motivated decades of work on competitive facility
-location. Berman and Krass \cite{berman2002} formalised the
-generalised maximal covering location problem, which selects facility
-sites to maximise covered demand subject to capacity constraints.
-Datta and Sudhir \cite{datta2013} estimated how zoning regulations
-affect retail format differentiation, finding that policies which
-reduce spatial separation increase product differentiation between
-competing chains. ReVelle and Eiselt \cite{revelle2005} survey
-forty years of facility location research and identify calibrated
-competitive models as the most practically relevant class for
-retail chains operating in saturated markets. The composite index
-proposed here belongs to that class.
+\subsection{Shortest-Path Computation in Accessibility Studies}
 
-\subsection{Shortest-path computation on road networks}
+Point-to-point acceleration algorithms such as A*~\cite{Hart1968},
+Bidirectional Dijkstra, and Contraction Hierarchies
+(CH)~\cite{Geisberger2008} exploit goal-directed pruning that provides
+no benefit when the full distance vector from a source is required, as
+in accessibility computation. A comprehensive survey of route planning
+methods is given in~\cite{Bast2016}. The correct one-to-all extension
+of Contraction Hierarchies is PHAST~\cite{Delling2011}, which requires
+specialized C++ implementations not available in standard scientific
+Python toolkits~\cite{Virtanen2020}.
 
-Dijkstra's algorithm \cite{dijkstra1959} is the standard method for
-computing single-source shortest paths on a non-negatively weighted
-graph. For a road network with $V$ nodes and $E$ edges, the algorithm
-runs in $O((V + E)\log V)$ time using a binary heap. When shortest
-paths are needed from many sources, the naive approach is to call
-single-source Dijkstra once per source, with total cost $O(S(V+E)\log
-V)$ for $S$ sources. Multi-source Dijkstra reduces this by running
-a single graph traversal from all sources simultaneously, which is
-particularly efficient when the source set is dense relative to the
-graph size.
+Recent accessibility studies have used different strategies.
+Jin and Lu~\cite{Jin2022} used ArcGIS OD Cost Matrix (sequential
+Dijkstra) for multi-mode food accessibility analysis. Kang et
+al.~\cite{Kang2020} parallelized the Enhanced Two-Step Floating
+Catchment Area method across CPU cores. Horton et
+al.~\cite{Horton2025} used OSRM with Contraction Hierarchies for a
+Kolm-Pollak equity optimization study. We show that an efficient
+implementation choice---exploiting undirected-graph symmetry via
+Multi-source Dijkstra in standard Python---achieves comparable or
+better performance than external routing engines, without preprocessing
+infrastructure or proprietary software.
 
-OpenStreetMap \cite{haklay2008} provides freely available road network
-data of comparable accuracy to commercial sources for most urban
-regions. Boeing \cite{boeing2017} demonstrates that the OSMnx library
-enables reproducible acquisition and analysis of OpenStreetMap street
-networks.
+\subsection{Position of This Work}
 
-\subsection{Position of this work}
+Table~\ref{tab:comparison} places this work in the context of six
+closely related studies across the four streams above. The key
+differentiators are: (1) all three spatial factors---demand, road
+network, and competition---are combined in one score; (2) component
+weights are calibrated from data rather than fixed by the analyst;
+(3) calibration is repeated independently for two chains with
+opposite strategies, producing brand-specific recommendations; and
+(4) the entire pipeline runs on publicly available data in standard
+Python, with no proprietary routing engine or GIS license.
 
-The framework proposed here differs from prior work in three
-respects. First, it integrates demand, accessibility, and competition
-into a single composite score rather than treating them as separate
-analyses. Second, the relative weights of the three components are
-not fixed at the analyst's discretion but are calibrated separately
-for each brand using leave-one-out cross-validation, which makes the
-calibrated weights themselves a meaningful output of the model.
-Third, the routing layer is implemented as a single multi-source
-Dijkstra call on a precomputed sparse graph, which makes the full
-calibration grid search tractable on a single workstation without
-the infrastructure overhead of a production routing engine.
+\begin{table*}[!t]
+\centering
+\caption{Comparison of Related Studies on Key Framework Dimensions}
+\label{tab:comparison}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Study} &
+\textbf{Demand} &
+\textbf{Road Network} &
+\textbf{Competition} &
+\textbf{Weight Calibration} &
+\textbf{Multi-Brand} &
+\textbf{Open Data} \\
+\midrule
+Luo \& Wang~\cite{Luo2003} &
+  2SFCA & Euclidean & No & Fixed & No & Yes \\
+Jin \& Lu~\cite{Jin2022} &
+  None & ArcGIS OD (Dijkstra) & No & None & No & No \\
+Kang et al.~\cite{Kang2020} &
+  2SFCA & Parallel Dijkstra & No & None & No & Yes \\
+Xu et al.~\cite{Xu2020} &
+  Hansen potential & Road network & No & None & No & Yes \\
+Horton et al.~\cite{Horton2025} &
+  Hansen (Kolm-Pollak) & OSRM-CH & No & Optimization & No & No \\
+Kharel et al.~\cite{Kharel2024} &
+  Distance-based & Road network & Partial & None & No & Yes \\
+\midrule
+\textbf{This work} &
+  \textbf{Huff gravity} &
+  \textbf{Multi-src Dijkstra} &
+  \textbf{Yes} &
+  \textbf{LOOCV + DE} &
+  \textbf{Yes (HT + FL)} &
+  \textbf{Yes} \\
+\bottomrule
+\end{tabular}
+\vspace{2pt}
+\footnotesize 2SFCA: Two-Step Floating Catchment Area. DE: Differential Evolution.
+HT: Harris Teeter. FL: Food Lion. OSRM-CH: OSRM Contraction Hierarchies.
+\end{table*}
 
-\section{Study Area and Data}
-\label{sec:data}
+No prior study combines all three spatial factors in one score,
+calibrates the weights empirically, or applies the calibration to
+competing chains with different strategies in the same study area.
+The OSRM divergence result in V3 ($\rho = 0.745$) adds a finding not
+present in any of the compared studies: the routing backend is itself
+a modelling choice that changes which sites get recommended.
 
-\subsection{Study area}
-
-The study area is Mecklenburg County, North Carolina, which contains
-the city of Charlotte and surrounding municipalities such as Matthews,
-Huntersville, and Pineville. According to the 2020 Decennial Census,
-the county has a resident population of approximately 1.1 million
-distributed across 559 census block groups. Mecklenburg County is
-representative of a large United States metropolitan area in terms
-of road network size, demographic mix, and competitive grocery
-landscape, making it a suitable test bed for the proposed framework.
-
-\subsection{Road network}
-
-The road network was downloaded from OpenStreetMap using the OSMnx
-Python library. The extracted graph contains 282,751 nodes and
-585,666 edges. Edge weights are travel times in seconds computed
-from posted speed limits. For shortest-path computation, the graph is
-stored as a Compressed Sparse Row (CSR) matrix, required by the SciPy
-sparse graph routines used for Dijkstra computation.
-
-\subsection{Demographic data}
-
-Population counts and median household income for each of the 559
-block groups were obtained from the 2018--2022 American Community
-Survey five-year estimates. The geometric centroid of each block group
-polygon is used as the demand point in all Huff and accessibility
-calculations.
-
-\subsection{Store locations and competitor set}
-
-Harris Teeter and Food Lion store locations were obtained from brand
-store-finder pages in January 2024 and cross-referenced with
-OpenStreetMap. Of 29 Harris Teeter stores and 27 Food Lion stores in
-Mecklenburg County, 28 and 26 respectively were successfully snapped
-to the nearest road network node within 500 metres. The single
-unmatched store for each brand is excluded from the calibration set.
-The competitor set for each brand consists of all other grocery stores
-in the county, covering formats from premium to discount.
-
-\subsection{Candidate sites}
-
-Candidate sites are derived from OpenStreetMap commercial land use
-polygons filtered to areas between 500 and 50,000 square metres.
-After deduplication and removal of polygons overlapping existing
-stores, 2,450 distinct candidate centroids remain.
-
+% =============================================================
 \section{Methodology}
 \label{sec:method}
+% =============================================================
 
-This section develops the three scoring components, the composite
-formula, the normalisation step, and the multi-source Dijkstra
-implementation. The full data flow is summarised in
-Figure~\ref{fig:archimate}.
+Fig.~\ref{fig:pipeline} summarises the full system pipeline. Raw
+inputs from three public data sources feed into preprocessing stages
+(ETL, spatial standardization, road graph construction, demand
+attribute normalization, and demand-to-graph mapping), which supply
+three parallel scoring components (Huff market potential, Multi-source
+Dijkstra accessibility, and local competition index). The components
+are combined into a final weighted suitability score and filtered by
+a diversity constraint to produce the ranked location recommendations.
+Brand-specific calibrated weights are obtained by retrospective
+leave-one-out cross-validation against known store locations.
 
 \begin{figure*}[!t]
-\centering
-\includegraphics[width=\textwidth]{figures/archimate_exact_v3.png}
-\caption{Layered architecture of the proposed framework. The business
-layer captures the analyst role and the site selection report
-deliverable. The application layer captures the ETL pipeline, road
-graph construction, multi-source Dijkstra distance matrix, three
-scoring components (Huff Demand Potential $W_1$, Road Accessibility
-$W_2$, Competition Index $W_3$), LOOCV calibration, and composite
-scoring. Brand-specific calibrated weights are shown: Harris Teeter
-$W_1{=}0.75$, $W_2{=}0.05$, $W_3{=}0.20$; Food Lion $W_1{=}0.10$,
-$W_2{=}0.05$, $W_3{=}0.85$. The technology layer captures the CSR
-sparse matrix, HPC node, and Python\,/\,SciPy stack.}
-\label{fig:archimate}
+    \centering
+    \includegraphics[width=\textwidth]{archimate_final.jpg}
+    \caption{ArchiMate~3.x layered architecture of the proposed
+    framework.
+    \textbf{Business layer}: Retail Strategist $\to$ Site Selection
+    Report $\to$ Top-$N$ Locations.
+    \textbf{Application layer}: ETL $\to$ Road Graph Construction $\to$
+    Multi-source Dijkstra produces a $559\times282{,}751$ Distance
+    Matrix; three independent scoring components (Huff Market Capture
+    $W_1$, Accessibility Index $W_2$, Competition Index $W_3$) feed
+    Composite Scoring with brand-specific calibrated weights.
+    Harris Teeter: $W_1{=}0.984$, $W_2{=}0.016$, $W_3{=}0.000$.
+    Food Lion: $W_1{=}0.10$, $W_2{=}0.05$, $W_3{=}0.85$.
+    \textbf{Technology layer}: HPC node (Intel~i9, 80\,GB,
+    Python/SciPy) with CSR sparse matrix storage.
+    Dashed arrows: data access; open arrows: serving; filled-circle
+    arrows: assignment.}
+    \label{fig:pipeline}
 \end{figure*}
 
-\subsection{Notation}
+\subsection{Data Sources and Preprocessing}
 
-Let $j$ index the candidate sites and $i$ index the census block
-groups. Let $\mathrm{pop}_i$ denote the population of block group $i$,
-$r$ the catchment radius in miles, $\mathcal{B}_j(r)$ the set of block
-groups within $r$ miles of candidate $j$, $d_{ij}$ the Euclidean
-distance from block group $i$ to candidate $j$, $t_{ij}$ the
-shortest-path travel time on the road network, and $\mathcal{C}_j(K)$
-the set of $K$ nearest competitor stores to candidate $j$.
+The framework requires three publicly available inputs:
 
-\subsection{Huff demand potential}
-\label{sec:huff}
+\textbf{Demand zones.} Census block groups (BGs) from the American
+Community Survey~\cite{Census2023}, each carrying population
+($\text{pop}_i$), median household income ($\text{inc}_i$), and
+population density ($\text{dens}_i$). For Charlotte, NC (Mecklenburg
+County): $N_{\text{BG}} = 559$ block groups after clipping to the
+city boundary. Fig.~\ref{fig:block_groups} shows the 559 block group
+boundaries across Mecklenburg County.
 
-\begin{equation}
-P_j = \sum_{i \in \mathcal{B}_j(r)}
-      \mathrm{pop}_i \cdot
-      \frac{d_{ij}^{-\beta}}
-           {d_{ij}^{-\beta} +
-            \sum_{k \in \mathcal{C}_j(K)} d_{ik}^{-\beta}}
-\label{eq:huff}
-\end{equation}
+\begin{figure}[!t]
+    \centering
+    \includegraphics[width=\linewidth]{block_group.png.jpeg}
+    \caption{Census block group boundaries across Mecklenburg County
+    (559 groups after clipping to the city boundary). Each polygon
+    carries four ACS attributes: GEOID, total population, area
+    (sq.\ mi), population density (persons/sq.\ mi), and median
+    household income. These attributes feed directly into the composite
+    demand weight $B_i$ (Eq.~\ref{eq:demand_weight}).}
+    \label{fig:block_groups}
+\end{figure}
 
-where $\beta > 0$ is the distance decay exponent. The ratio is the
-share of block group $i$'s demand captured by candidate $j$ given its
-$K$ nearest competitors. Following Huff's original formulation,
-Euclidean distance is used because consumer perception of effort to
-a shopping destination is closer to a straight-line judgement than
-to a precise routing computation.
+\textbf{Road network.} OpenStreetMap~\cite{OSM2024} drive-accessible
+road segments, downloaded using OSMnx~\cite{Boeing2017} and
+represented as an undirected weighted graph $G = (V, E, w)$ where
+edge weight $w_e$ is segment length in metres. Charlotte:
+$|V| = 282{,}751$ nodes, $|E| = 585{,}666$ edges. The graph is
+stored as a symmetric Compressed Sparse Row (CSR) matrix and passed
+directly to \texttt{scipy.sparse.csgraph.dijkstra}~\cite{Virtanen2020}
+with \texttt{directed=False}.
 
-\subsection{Road accessibility}
-\label{sec:access}
+\textbf{Candidate sites.} Extracted from OSM commercial landuse
+polygons (\texttt{landuse=retail/commercial},
+\texttt{shop=supermarket}), area-filtered to
+$500$--$500{,}000\,\text{m}^2$ (lower bound excludes kiosks and
+parking stalls; upper bound excludes large industrial parcels
+unsuitable for retail), represented by polygon centroids. Charlotte:
+$N_{\text{cands}} = 2{,}450$. All 28 Harris Teeter and 26 Food Lion
+ground-truth stores fall within 0.5 miles of a candidate.
 
-\begin{equation}
-R_j = \frac{\sum_{i \in \mathcal{B}_j(r)} \mathrm{pop}_i}
-           {\sum_{i \in \mathcal{B}_j(r)} \mathrm{pop}_i \cdot t_{ij}}
-\label{eq:access}
-\end{equation}
+\textbf{Existing facilities.} Coordinates of target-brand and
+competitor stores. Charlotte: 28 Harris Teeter, 26 Food Lion, plus
+additional competitors (Kroger, Publix, Aldi, Lidl, and similar
+full-service supermarkets) within Mecklenburg County. Competitor
+locations were extracted from OSM nodes tagged
+\texttt{shop=supermarket} or \texttt{shop=grocery} within the county
+boundary and verified against publicly available store locator data.
 
-$R_j$ is the reciprocal of the population-weighted mean road travel
-time to candidate $j$. Sites with shorter mean travel time to larger
-populations receive higher $R_j$, consistent with the Hansen
-\cite{hansen1959} potential accessibility tradition.
+All geometries are projected to NAD83/North Carolina (EPSG:32119)
+for metric computation.
 
-\subsection{Competition penalty}
-\label{sec:comp}
+\textbf{Node snapping.} Block group centroids and candidate sites are
+snapped to their nearest road node via k-d tree ($k=1$), producing
+index arrays \texttt{bg\_node\_ids} and \texttt{cand\_node\_ids}.
+Block groups with suppressed ACS income values are excluded from
+downstream computation.
 
-\begin{equation}
-S_j = \frac{N_{\mathrm{comp},j}}
-           {\mathrm{pop}_{j,r} / 10\,000}
-\label{eq:comp}
-\end{equation}
+\begin{table}[!t]
+\centering
+\caption{Charlotte Case Study: Data Summary}
+\label{tab:data_summary}
+\begin{tabular}{lr}
+\toprule
+\textbf{Component} & \textbf{Count} \\
+\midrule
+Census block groups (demand zones)  & 559 \\
+Candidate locations (OSM commercial)& 2{,}450 \\
+Harris Teeter stores (ground truth) & 28 \\
+Food Lion stores (ground truth)     & 26 \\
+Competitor grocery stores           & 52 \\
+Road network nodes                  & 282{,}751 \\
+Road network edges                  & 585{,}666 \\
+\bottomrule
+\end{tabular}
+\end{table}
 
-where $N_{\mathrm{comp},j}$ is the competitor count within $r$ miles
-and $\mathrm{pop}_{j,r}$ is the catchment population. High $S_j$
-indicates a saturated trade area.
-
-\subsection{Normalisation}
+\subsection{Normalization}
 \label{sec:norm}
 
-Each component is mapped to $[0.01, 1.0]$ using percentile-robust
-linear scaling:
-
+Before any component is used in scoring, each raw variable is
+independently scaled to the interval $[0.01,\,1.0]$. Raw values are
+first clipped to their 1st and 99th percentiles to suppress extreme
+outliers, then mapped by a linear min-max transform:
 \begin{equation}
-\hat{x}_j = 0.01 + 0.99 \cdot
-            \frac{\mathrm{clip}(x_j, q_1, q_{99}) - q_1}
-                 {q_{99} - q_1}
+\tilde{x}_i
+  = 0.01 + 0.99\,\frac{
+      \text{clip}(x_i,\,p_1,\,p_{99}) - p_1
+    }{
+      p_{99} - p_1
+    }
 \label{eq:norm}
 \end{equation}
+where $p_1$ and $p_{99}$ are the 1st and 99th percentiles of
+variable $x$. The lower bound of 0.01 ensures that no element
+receives a zero weight, which would remove it entirely from
+multiplicative terms. This normalization is applied independently
+to $\text{pop}_i$, $\text{inc}_i$, $\text{dens}_i$, and to each
+of the three scoring components $P_k$, $A_k$, $S_k$ before
+combination in Eq.~(\ref{eq:score}).
 
-where $q_1$ and $q_{99}$ are the 1st and 99th percentiles of $x$
-across all candidates. Clipping prevents extreme outliers from
-compressing the rest of the distribution.
+\subsection{Demand Weight Construction}
 
-\subsection{Composite score}
-\label{sec:composite}
-
+Each block group $i$ receives a composite demand weight $B_i$
+constructed from three ACS attributes. Let
+$\widetilde{\text{pop}}_i$ denote the normalized total population
+(volume of potential customers), $\widetilde{\text{inc}}_i$ the
+normalized median household income (purchasing power), and
+$\widetilde{\text{dens}}_i$ the normalized population density in
+residents per square mile (spatial concentration of demand), each
+scaled by Eq.~(\ref{eq:norm}). Then:
 \begin{equation}
-\mathrm{Score}_j =
-W_1 \hat{P}_j + W_2 \hat{R}_j - W_3 \hat{S}_j
-\label{eq:composite}
+B_i = 0.4\,\widetilde{\text{pop}}_i
+    + 0.3\,\widetilde{\text{inc}}_i
+    + 0.3\,\widetilde{\text{dens}}_i
+\label{eq:demand_weight}
 \end{equation}
+The default coefficients $(0.4,\;0.3,\;0.3)$ are configurable analyst
+inputs, not empirically derived constants. Population receives the
+largest weight because it directly determines market size---a location
+with no residents has zero demand regardless of income or density.
+Income and density are secondary qualifiers of equal importance that
+capture purchasing power and spatial concentration respectively.
+A discount chain entering a new market might increase the population
+coefficient because volume outweighs affluence; a premium grocer might
+increase the income coefficient because basket size drives revenue.
+Critically, the outer weight calibration in Section~\ref{sec:v2}
+partially compensates for inner weight choices: a systematic shift in
+$B_i$ toward income, for example, is absorbed by the calibrated $W_1$
+adjusting accordingly. Final candidate rankings are therefore
+relatively insensitive to moderate changes in these coefficients---what
+matters is the relative ordering of block groups by demand quality,
+which is stable across reasonable coefficient choices.
 
-subject to $W_1 + W_2 + W_3 = 1$ and $W_i \geq 0$. Demand and
-accessibility contribute positively; competition enters as a penalty.
+\subsection{Huff Market Potential}
 
-\subsection{Multi-source Dijkstra routing}
-\label{sec:routing}
+Let $W_1$, $W_2$, $W_3 \geq 0$ with $W_1 + W_2 + W_3 = 1$ denote
+the outer scoring weights for demand, accessibility, and competition
+respectively; these are defined formally in the composite score
+(Eq.~\ref{eq:score}) and calibrated retrospectively in
+Section~\ref{sec:v2}.
 
-Computing $t_{ij}$ for all 559 block groups via sequential
-single-source Dijkstra requires 559 independent graph traversals.
-Because the road graph is undirected, a single multi-source Dijkstra
-call from all block group nodes simultaneously produces the full
-$559 \times 282{,}751$ distance matrix in one pass using
-\texttt{scipy.sparse.csgraph.dijkstra} with \texttt{directed=False}.
-The matrix is cached on disk; subsequent calibration runs that
-change $r$, $\beta$, $K$, $W_1$, $W_2$, or $W_3$ reuse the cache
-and complete in under half a second each.
+The Huff gravity model~\cite{Huff1964} estimates the probability
+that demand from block group $i$ is captured by candidate $k$
+rather than by existing competitors $j \in C$:
+\begin{equation}
+\text{Share}_{ik} = \frac{t_{ik}^{-\beta}}
+                         {t_{ik}^{-\beta}
+                          + \sum_{j \in C_K(i)} t_{ij}^{-\beta}}
+\label{eq:huff}
+\end{equation}
+where $t_{ik}$ is travel time in minutes (Euclidean distance divided
+by an assumed speed of 35\,mph), $\beta$ is the distance-decay
+exponent (default 2.0), and $C_K(i)$ is the set of $K$ nearest
+competitor stores to block group $i$ (default $K = 3$). Using $K$
+nearest competitors rather than all competitors avoids diluting the
+denominator with distant facilities that have negligible influence on
+local choice behaviour.
 
-\begin{table}[t]
-\caption{Routing method comparison on the Mecklenburg County road
-graph (282,751 nodes, 559 block groups, 2,450 candidates).}
-\label{tab:routing}
+The raw market potential for candidate $k$ is:
+\begin{equation}
+P_k = \sum_{i \in R_k} B_i\,\text{Share}_{ik}
+\label{eq:potential}
+\end{equation}
+where $R_k$ is the set of block groups whose centroids fall within a
+5-mile catchment radius of candidate $k$, and $B_i$ is the composite
+demand weight from Eq.~(\ref{eq:demand_weight}).
+
+The Huff model uses Euclidean distance rather than road-network
+distance. This choice is deliberate: Huff captures consumer
+\textit{perception} of effort, not actual routing cost. Shoppers
+comparing two stores reason in straight-line terms, not turn-by-turn
+directions. Huff's original formulation used Euclidean distance for
+this reason~\cite{Huff1964}, and subsequent retail gravity
+implementations have largely followed suit~\cite{Nakanishi1974,
+Liang2020,Drezner2002}. Road-network distance is the appropriate metric for the
+accessibility component (Eq.~\ref{eq:tbar}), which quantifies travel
+burden on real infrastructure.
+
+\subsection{Road-Network Accessibility Index}
+\label{sec:sssp}
+
+\subsubsection{Computing the Distance Matrix}
+
+The accessibility component requires one-to-all shortest-path
+distances from each source to all road nodes, computed via
+Dijkstra's algorithm~\cite{Dijkstra1959}. Three strategies are
+possible:
+
+\textbf{Standard (Forward) Dijkstra.} Run one shortest-path
+computation from each of the $N_{\text{cands}}$ candidates,
+requiring $N_{\text{cands}}$ calls.
+
+\textbf{Reverse Dijkstra.} Because $G$ is undirected,
+$d(A,B) = d(B,A)$. The scoring pipeline needs distances from
+block groups \emph{to} candidates, but on an undirected graph this
+equals distances from candidates \emph{to} block groups, so either
+end can serve as the source. The right choice is block groups.
+This is not a coincidence of the Charlotte data---it is a structural
+property of how cities are organized. A Census block group is a
+residential unit of roughly 600--3{,}000 households covering a
+contiguous area; within that area there are typically several
+commercial parcels, each a distinct candidate site. One block group,
+multiple candidates. So $N_{\text{BG}} < N_{\text{cands}}$ holds
+by problem design in any city, giving a theoretical call-count ratio
+of $N_{\text{cands}}/N_{\text{BG}} = 2{,}450/559 \approx 4.38\times$
+for Charlotte. Atlanta (1{,}800 BGs, 1{,}148 cands) is the one
+exception in our benchmark: fewer candidate parcels than block groups
+because of Atlanta's lower commercial density in the study boundary,
+so the algorithm switches source sets and runs from candidates instead.
+
+\textbf{Multi-source Dijkstra.} Rather than issuing one call per
+block group, all $N_{\text{BG}}$ source nodes (stored in
+\texttt{bg\_node\_ids}) are passed simultaneously to a single
+\texttt{scipy.sparse.csgraph.dijkstra}~\cite{Virtanen2020} call
+with \texttt{directed=False} and \texttt{indices=bg\_node\_ids}.
+The function returns a dense matrix $D$ of shape
+$N_{\text{BG}} \times |V|$, where $D[s, v]$ holds the
+shortest-path distance from source block group $s$ to road node $v$.
+
+This is mathematically equivalent to $N_{\text{BG}}$ sequential
+reverse-Dijkstra calls and faster because a single compiled C call
+eliminates Python interpreter overhead across hundreds of invocations.
+
+The road distance from block group $i$ to candidate $k$ is then
+retrieved as a single array lookup:
+\begin{equation}
+d_{ik}^{\text{road}} = D\bigl[\,\text{bg\_idx}(i),\;
+                                \text{cand\_node}(k)\,\bigr]
+\label{eq:lookup}
+\end{equation}
+and converted to travel time in minutes:
+\begin{equation}
+t_{ik}^{\text{road}}
+  = \frac{d_{ik}^{\text{road}}}{35 \times 0.44704 \times 60}
+  = \frac{d_{ik}^{\text{road}}}{936.8}\;\text{[minutes]}
+\label{eq:ttime}
+\end{equation}
+where $d_{ik}^{\text{road}}$ is in metres, $35\,\text{mph} \times
+0.44704\,\text{m\,s}^{-1}\text{mph}^{-1} = 15.65\,\text{m/s}$,
+and dividing by 60 converts seconds to minutes.
+
+The Dijkstra distance limit is set to $r \times 1.30$ (circuity
+factor) to accommodate road-network indirection beyond the
+straight-line catchment radius $r = 5$ miles.
+
+\subsubsection{Accessibility Score Computation}
+
+The demand-weighted average shortest-path travel time from all block
+groups in the catchment to candidate $k$ is:
+\begin{equation}
+\bar{t}_k = \frac{\sum_{i \in R_k} B_i \cdot t_{ik}^{\text{road}}}
+                  {\sum_{i \in R_k} B_i}
+\label{eq:tbar}
+\end{equation}
+where $t_{ik}^{\text{road}}$ is the Dijkstra shortest-path travel
+time on $G$ and $B_i$ is the composite demand weight from
+Eq.~(\ref{eq:demand_weight}). Block groups with no finite path to
+candidate $k$ are excluded from both numerator and denominator.
+
+The accessibility score follows the Hansen~\cite{Hansen1959}
+negative-exponential form:
+\begin{equation}
+A_k = \exp\!\bigl(-\alpha \cdot \bar{t}_k\bigr), \quad \alpha = 0.05
+\label{eq:access}
+\end{equation}
+The value $\alpha = 0.05$ is consistent with driving-mode decay rates
+reported in the urban accessibility literature for catchment radii of
+5--10\,miles~\cite{Luo2003,Wang2012}, and produces meaningful spread
+across typical urban travel times: $A_k = 0.78$ at $\bar{t}_k =
+5$\,min, 0.61 at 10\,min, 0.47 at 15\,min, and 0.37 at 20\,min.
+Sensitivity analysis over $\alpha \in \{0.03,\,0.05,\,0.08\}$
+showed Spearman rank correlation above 0.96 across all candidate
+rankings, confirming the final ranking is stable with respect to
+this parameter.
+
+\subsection{Competition Saturation Index}
+
+$P_k$ and $S_k$ measure different things.
+
+Huff answers: given this candidate and all existing stores, what share
+of each nearby block group's demand does the candidate get? The
+denominator uses the $K$ nearest stores to each block group, no
+radius, because shoppers compare the candidate against whichever stores
+are actually close to them. $S_k$ asks something else entirely: how
+many groceries per 10{,}000 residents are already in the catchment?
+It is a density count bounded by radius $r$, measuring how crowded the
+local supply is before this candidate even opens.
+
+They diverge in predictable ways. A suburban site near the county edge
+can capture a strong Huff share because its $K$ nearest stores are
+8+ miles away, while also sitting in a low-$S_k$ zone with few
+competitors in the radius. A midtown site can face a tight Huff share
+with three stores within a mile, and face a high $S_k$ for the same
+reason. Neither component substitutes for the other. The near-zero
+Spearman correlation between $\widetilde{P}$ and $\widetilde{S}$
+($\rho = 0.065$, Table~\ref{tab:correlation}) confirms this across
+all 2{,}450 candidates.
+
+Within the catchment radius $r$ of candidate $k$, let $C_k$ be the
+count of all existing grocery stores (target-brand and competitors;
+the market is saturated regardless of which brand occupies a store)
+and $\text{Pop}_k$ the total population across all block groups in
+that catchment:
+\begin{equation}
+S_k = \frac{C_k}{\text{Pop}_k / 10{,}000}
+\label{eq:competition}
+\end{equation}
+Higher values indicate more saturated markets. Normalizing by
+population rather than area avoids penalizing dense urban sites
+simply for having many nearby stores; what matters is whether supply
+keeps pace with demand.
+
+\subsection{Composite Suitability Score}
+
+All three components are independently normalized to $[0.01,\,1.0]$
+via Eq.~(\ref{eq:norm}) before combination. The scoring weights
+$W_1$, $W_2$, $W_3 \geq 0$ with $W_1 + W_2 + W_3 = 1$ control
+each component's contribution:
+\begin{equation}
+\text{Score}_k
+  = W_1\,\widetilde{P}_k
+  + W_2\,\widetilde{A}_k
+  - W_3\,\widetilde{S}_k
+\label{eq:score}
+\end{equation}
+where $\widetilde{P}_k$, $\widetilde{A}_k$, and $\widetilde{S}_k$
+are the normalized market potential, accessibility score, and
+competition index for candidate $k$, each produced by
+Eq.~(\ref{eq:norm}). Market potential and accessibility contribute
+positively; competition enters as a penalty. The score range is
+$\text{Score}_k \in [-W_3,\;W_1 + W_2]$.
+
+The weights $W_1, W_2, W_3$ are calibrated against the known store
+network of whichever facility type is being analyzed
+(Section~\ref{sec:v2}), making the framework adaptable to any
+retailer, healthcare provider, or public service.
+
+\subsection{Spatial Diversity Selection}
+
+The top $N$ sites are selected by greedy spatial-diversity search:
+the highest-scoring candidate is chosen first, then iteratively the
+next highest-scoring candidate at least $d_{\min} = 2.5$ miles from
+every already-selected site. This heuristic prevents the clustering
+that unconstrained score-maximization would produce, spreading
+recommendations across the market area.
+
+\begin{table}[!t]
 \centering
-\renewcommand{\arraystretch}{1.15}
+\caption{Model Parameters and Default Values}
+\label{tab:params}
+\begin{tabular}{lll}
+\toprule
+\textbf{Symbol} & \textbf{Default} & \textbf{Description} \\
+\midrule
+$\beta$    & 2.0       & Huff distance-decay exponent \\
+$\alpha$   & 0.05      & Hansen accessibility decay rate \\
+$K$        & 3         & Nearest competitors in Huff denominator \\
+$r$        & 5 miles   & Catchment radius \\
+$d_{\min}$ & 2.5 miles & Min.\ separation for diversity \\
+Speed      & 35 mph    & Assumed uniform driving speed \\
+Circuity   & 1.30      & Dijkstra limit $= r \times$ circuity \\
+$W_1, W_2, W_3$ & 0.4,\;0.3,\;0.3 & Component weights (sum to 1) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% =============================================================
+\section{Case Study: Charlotte, NC}
+\label{sec:results}
+% =============================================================
+
+We applied the framework to the Charlotte, NC metropolitan region
+using the data summarised in Table~\ref{tab:data_summary}.
+
+\subsection{Demographic Demand Structure}
+
+Population density concentrates in central Charlotte and southeastern
+corridors; median household income does not track density, with
+high-density inner-city areas often coinciding with lower incomes.
+Table~\ref{tab:demo} reports the demographic spread.
+
+\begin{table}[!t]
+\centering
+\caption{Demographic Profile of Charlotte Block Groups (559 BGs)}
+\label{tab:demo}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Attribute} & \textbf{Median} & \textbf{10th pct.}
+                   & \textbf{90th pct.} \\
+\midrule
+Population                  & 1{,}412 & 612    & 2{,}891    \\
+Median income (USD)         & 62{,}400 & 28{,}100 & 113{,}500 \\
+Density (per sq.\ mi)       & 3{,}210 & 640    & 9{,}870    \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Weighting by population alone would misrepresent market quality. The
+composite weight $B_i$ from Eq.~(\ref{eq:demand_weight}) captures
+both volume and economic capacity simultaneously, which turns out to
+be critical: the two chains' calibrated weights differ most sharply
+precisely because they weight volume and economic capacity differently.
+
+\subsection{Network Accessibility Patterns}
+
+Accessibility scores from Eq.~(\ref{eq:access}) depend on network
+topology. Candidates near arterials and highway interchanges
+(I-77, I-85, I-485) score highest; 61.5\% of the 2{,}450 candidates
+fall in the 8--16\,min travel-time band ($A_k \in [0.45,\,0.67]$),
+while only 8.8\% exceed 16\,min ($A_k < 0.45$). Some geographically
+central locations score poorly due to circuitous local streets, while
+peripheral sites near highway access points outperform them.
+
+\subsection{Competitive Saturation}
+
+Established commercial corridors in south and northeast Charlotte
+exhibit competition indices $S_k > 1.5$ stores per 10{,}000 people.
+Without the $W_3$ penalty, these saturated areas would dominate
+rankings purely due to demand and accessibility. The competition
+component redirects recommendations toward emerging suburban zones
+($S_k < 0.3$) with growing populations and limited existing
+facilities---exactly the territory Food Lion's calibrated model
+identifies as most attractive.
+
+\subsection{Component Independence}
+\label{sec:component_analysis}
+
+A three-component framework is justified only if the components
+capture different spatial information. Table~\ref{tab:component_stats}
+reports descriptive statistics for each raw component across all
+2{,}450 candidates, and Table~\ref{tab:correlation} reports pairwise
+Spearman rank correlations after normalization.
+
+\begin{table}[!t]
+\centering
+\caption{Raw Component Statistics Across 2,450 Candidates}
+\label{tab:component_stats}
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Component} & \textbf{Mean} & \textbf{Std} & \textbf{Range}
+                    & \textbf{CV} \\
+\midrule
+$P_k$ (Market Potential) & 4.394 & 1.834 & 7.712 & 0.417 \\
+$A_k$ (Accessibility)    & 0.709 & 0.022 & 0.137 & 0.030 \\
+$S_k$ (Competition)      & 0.848 & 0.158 & 0.869 & 0.186 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Market potential shows the strongest differentiation (CV $= 0.417$);
+competition moderate (CV $= 0.186$); raw accessibility narrow
+(CV $= 0.030$), reflecting Charlotte's relatively uniform network.
+Percentile-robust normalization maps all three into $[0.01,\,1.0]$,
+ensuring each contributes meaningful spread to the final score.
+
+\begin{table}[!t]
+\centering
+\caption{Pairwise Spearman Rank Correlation (Normalized Components)}
+\label{tab:correlation}
 \begin{tabular}{lccc}
 \toprule
-Method & Pre-process & Scoring & Speedup \\
+& $\widetilde{P}$ & $\widetilde{A}$ & $\widetilde{S}$ \\
 \midrule
-Sequential Dijkstra \cite{jin2022}         & 0\,s   & 211.4\,s & 1.0$\times$ \\
-Parallel Dijkstra, 4 cores \cite{kang2020} & 0\,s   & 72.4\,s  & 2.9$\times$ \\
-\textbf{Multi-source Dijkstra (proposed)}  & \textbf{44.3\,s} & \textbf{0.46\,s} & \textbf{4.7$\times$} \\
-Contraction hierarchies \cite{horton2025}  & ${\sim}35$\,min & ${\sim}4$\,min & 0.09$\times$ \\
+$\widetilde{P}$ (Market Potential) & 1.000 & 0.383 & 0.065 \\
+$\widetilde{A}$ (Accessibility)    & 0.383 & 1.000 & 0.040 \\
+$\widetilde{S}$ (Competition)      & 0.065 & 0.040 & 1.000 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\section{Hyperparameter Calibration}
-\label{sec:calib}
+All pairwise correlations fall below 0.4: competition is nearly
+orthogonal to both demand and accessibility ($\rho < 0.07$), and the
+moderate $\widetilde{P}$--$\widetilde{A}$ correlation ($\rho = 0.383$)
+is far from deterministic. Variance decomposition under balanced
+weights confirms each component contributes independently:
 
-\subsection{Leave-one-out cross-validation}
-
-For each parameter vector $\theta = (r, \beta, K, W_1, W_2, W_3)$
-and each known store $s$, we: (1) remove $s$ from the ground truth
-and competitor set, (2) score all 2,450 candidates, and (3) record
-the percentile rank of the held-out location. The LOOCV score is
-the mean percentile rank across all held-out stores.
-
-\subsection{Iterative grid search}
-
-We use a four-stage search. Stage A evaluates a coarse Huff parameter
-grid and selects the top-20 combinations by fast non-cross-validated
-rank. Stage B runs full LOOCV on those 20 and selects the best Huff
-configuration. Stage C evaluates a weight grid $(W_1, W_2)$ with
-$W_3 = 1 - W_1 - W_2$ at the Stage B configuration. Stage D runs
-full LOOCV on the top-10 weight combinations. If the winner lands on
-a grid boundary, the grid extends and the search repeats. Food Lion
-converged in three iterations; Harris Teeter required six.
-
-\subsection{Calibrated parameters}
-
-\begin{table}[t]
-\caption{Calibrated parameters for Harris Teeter and Food Lion.}
-\label{tab:params}
+\begin{table}[!t]
 \centering
-\renewcommand{\arraystretch}{1.15}
+\caption{Score Variance Decomposition
+         ($W_1 = 0.4$, $W_2 = 0.3$, $W_3 = 0.3$)}
+\label{tab:variance}
+\begin{tabular}{lrr}
+\toprule
+\textbf{Term} & \textbf{Variance}
+              & \textbf{\% of Var(Score)} \\
+\midrule
+$W_1 \widetilde{P}$ (Market Potential) & 0.01164 & 44.5\% \\
+$W_2 \widetilde{A}$ (Accessibility)    & 0.00435 & 16.6\% \\
+$W_3 \widetilde{S}$ (Competition)      & 0.00476 & 18.2\% \\
+Cross-covariance terms                 & 0.00537 & 20.6\% \\
+\midrule
+Var(Score)                             & 0.02612 & 100.0\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Market potential explains 44.5\%, competition 18.2\%, and
+accessibility 16.6\% of score variance; none is negligible. The
+remaining 20.6\% arises from cross-covariance between components
+(primarily the moderate $\widetilde{P}$--$\widetilde{A}$ correlation,
+$\rho = 0.383$), meaning the components are not fully independent
+but each retains unique explanatory content. This is what makes the
+competition-avoidance strategy interpretable: Food Lion is
+essentially exploiting the near-zero $\widetilde{P}$--$\widetilde{S}$
+correlation ($\rho = 0.065$), placing stores in low-competition zones
+that the demand signal alone would never prioritize.
+
+\subsection{Composite Suitability and Top Locations}
+
+High-scoring regions form spatial clusters where demand,
+accessibility, and low competition coincide. Under balanced weights
+($W_1 = 0.4$, $W_2 = 0.3$, $W_3 = 0.3$), top-ranked sites combine
+market potential above 0.75, accessibility above 0.70, and competition
+below 0.40 stores per 10{,}000 people.
+
+Table~\ref{tab:top10_scores} lists the top-10 sites under balanced
+weights, identified by Census block group GEOID and neighborhood.
+Sites concentrate in inner Charlotte corridors (Uptown, Dilworth,
+Elizabeth) where demand and accessibility align. Tables~\ref{tab:top10_ht}
+and~\ref{tab:top10_fl} show brand-specific recommendations under
+calibrated weights; the two lists look almost nothing alike, which
+is the point---each reflects a different strategy recovered from data.
+
+\begin{table}[!t]
+\centering
+\caption{Top-10 Candidate Sites Under Balanced Weights
+         ($W_1=0.4$, $W_2=0.3$, $W_3=0.3$, $\beta=2.0$, $r=5$\,mi)}
+\label{tab:top10_scores}
+\begin{tabular}{clr}
+\toprule
+\textbf{Rank} & \textbf{GEOID / Neighborhood} & \textbf{Score} \\
+\midrule
+1  & 371190001021\ \ Uptown / First Ward    & 0.601 \\
+2  & 371190028002\ \ Dilworth               & 0.504 \\
+3  & 371190017011\ \ Elizabeth              & 0.434 \\
+4  & 371190053011\ \ NoDa                   & 0.360 \\
+5  & 371190033022\ \ Enderly Park           & 0.329 \\
+6  & 371190015043\ \ Plaza Midwood          & 0.322 \\
+7  & 371190030221\ \ South Park             & 0.319 \\
+8  & 371190019141\ \ Cotswold               & 0.293 \\
+9  & 371190054041\ \ University City        & 0.271 \\
+10 & 371190058551\ \ Steele Creek           & 0.269 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[!t]
+\centering
+\caption{Top-10 Harris Teeter Recommended Sites Under Calibrated Weights
+         ($W_1=0.984$, $W_2=0.016$, $W_3=0.000$, $\beta=3.0$, $r=5$\,mi)}
+\label{tab:top10_ht}
+\begin{tabular}{clr}
+\toprule
+\textbf{Rank} & \textbf{GEOID / Neighborhood} & \textbf{Score} \\
+\midrule
+1  & 371190001012\ \ Uptown / Second Ward   & 1.000 \\
+2  & 371190027023\ \ South End              & 0.723 \\
+3  & 371190058591\ \ Lake Wylie             & 0.691 \\
+4  & 371190029072\ \ South Park             & 0.650 \\
+5  & 371190012003\ \ Myers Park             & 0.637 \\
+6  & 371190058452\ \ Pineville              & 0.576 \\
+7  & 371190030132\ \ Ballantyne             & 0.466 \\
+8  & 371190031082\ \ Quail Hollow           & 0.463 \\
+9  & 371190015042\ \ Plaza Midwood East     & 0.406 \\
+10 & 371190058552\ \ Steele Creek           & 0.379 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[!t]
+\centering
+\caption{Top-10 Food Lion Recommended Sites Under Calibrated Weights
+         ($W_1=0.10$, $W_2=0.05$, $W_3=0.85$, $\beta=3.5$, $r=5.5$\,mi).
+         Low $\widetilde{S}$ values confirm FL targets competition gaps.}
+\label{tab:top10_fl}
+\begin{tabular}{clrr}
+\toprule
+\textbf{Rank} & \textbf{GEOID / Neighborhood} & $\widetilde{S}$ & \textbf{Score} \\
+\midrule
+1  & 371190015071\ \ Oakhurst / East Charlotte & 0.011 & 0.117 \\
+2  & 371190055363\ \ University City NE        & 0.010 & 0.087 \\
+3  & 371190019221\ \ Mint Hill                 & 0.010 & 0.081 \\
+4  & 371190054041\ \ University City           & 0.010 & 0.065 \\
+5  & 371190044001\ \ Huntersville              & 0.010 & 0.064 \\
+6  & 371190016071\ \ Eastover / Idlewild       & 0.087 & 0.037 \\
+7  & 371190061031\ \ Cornelius                 & 0.010 & 0.030 \\
+8  & 371190056211\ \ Matthews                  & 0.022 & 0.030 \\
+9  & 371190061051\ \ Cornelius South           & 0.014 & 0.027 \\
+10 & 371190052003\ \ University City South     & 0.134 & $-$0.021 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% =============================================================
+\section{Validation}
+\label{sec:validation}
+% =============================================================
+
+Four experiments validate the framework. V1 benchmarks multi-city
+runtime scaling. V2 calibrates weights against Harris Teeter's and
+Food Lion's known store networks, revealing fundamentally different
+siting strategies. V3 compares routing methods from three published
+studies. V4 tests statistical significance of both calibrations.
+V1 ran on an HPC node (Intel~i9, 80\,GB, RHEL~9.7, Python~3.9.23,
+SciPy~1.13.1); V3 ran on a workstation (Core~i5-1035G1, 8\,GB,
+Windows~11, Python~3.12.5, Docker~29.0.1) with all four methods
+sharing identical hardware. All timings are single-run wall-clock
+measurements with OS caches cleared before each run; standard
+deviations across repeated runs were not recorded. The reported values
+should be interpreted as representative order-of-magnitude comparisons
+rather than statistically precise benchmarks.
+
+% ------ V1 ------
+\subsection{V1: Multi-City Runtime Scaling}
+\label{sec:v1}
+
+The central computational task in our framework is building the block
+group distance matrix: a dense $N_{\text{BG}} \times |V|$ matrix
+containing the shortest-path distance from every block group centroid
+to every road node. Multi-source Dijkstra constructs this matrix in
+a single compiled C call. The standard baseline runs one Dijkstra
+call per candidate site from the larger source set.
+
+We measured both approaches on three US cities of increasing network
+size (Table~\ref{tab:v1_scaling}).
+
+\begin{table}[!t]
+\centering
+\caption{V1: Multi-City Runtime Scaling \& Speedup (HPC, 80\,GB RAM)}
+\label{tab:v1_scaling}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lrrrrrr}
+\toprule
+\textbf{City} & \textbf{Nodes} & \textbf{BGs} & \textbf{Cands}
+              & \textbf{Ours} & \textbf{Standard} & \textbf{Speedup} \\
+\midrule
+Charlotte   & 282{,}751     & 559     & 2{,}450   & 42.7\,s   & 196.8\,s              & 4.63$\times$ \\
+Atlanta     & 916{,}452     & 1{,}800 & 1{,}148   & 2.9\,min  & 5.5\,min              & 1.89$\times$ \\
+Los Angeles & 1{,}018{,}083 & 6{,}400 & 14{,}208  & 37.8\,min & 93.7\,min\textsuperscript{a} & 2.48$\times$ \\
+\bottomrule
+\end{tabular}}
+\vspace{2pt}
+\footnotesize\textsuperscript{a}LA Standard Dijkstra extrapolated from 70\% completion
+(3{,}934\,s elapsed, stable per-source rate).
+\end{table}
+
+Multi-source Dijkstra always runs from the smaller source set.
+Charlotte and Los Angeles follow the typical pattern where block
+groups are fewer than candidate sites---a structural consequence of
+one Census BG containing multiple commercial parcels. Atlanta is the
+exception: its study boundary captured fewer candidate parcels
+(1{,}148) than block groups (1{,}800) due to lower commercial parcel
+density, so the algorithm switches to running from candidate nodes and
+transposes the result for scoring. Measured speedups exceed the
+call-count ratio in all three cities because a single compiled C
+invocation eliminates Python interpreter overhead across hundreds of
+calls: Charlotte ($4.63\times$ vs.\ $4.38\times$ call-count ratio)
+and Los Angeles ($2.48\times$ vs.\ $2.22\times$) benefit most;
+Atlanta ($1.89\times$) shows the expected result when source sets
+are similar in size.
+
+The practical implication is clear: the distance matrix for any
+US city at grocery-chain scale can be precomputed in under 40
+minutes on a single workstation, and all subsequent calibration
+calls that vary weights or Huff parameters reuse the cache and
+complete in under 0.5\,s each.
+
+% ------ V2 ------
+\subsection{V2: Retrospective Weight Calibration Against Known Store Locations}
+\label{sec:v2}
+
+V2 is a \textit{retrospective} analysis: it asks which scoring
+weights best explain where a given chain \textit{already} placed its
+stores, revealing its historical siting priorities. We ran this
+calibration independently for Harris Teeter (28 stores) and Food
+Lion (26 stores), using the same candidate pool of 2{,}450 sites.
+
+\subsubsection{Calibration Procedure}
+
+The composite score weights $W_1, W_2, W_3$, the Huff decay
+parameter $\beta$, and the catchment radius $r$ are estimated jointly
+by minimizing the mean percentile rank of known store locations within
+the scored candidate pool. Including $r$ in the search space is
+necessary because value chains and premium chains draw from
+fundamentally different trade areas; fixing $r$ in advance would
+impose an assumption about store reach that the calibration is
+designed to recover from data.
+The optimization used Differential Evolution~\cite{Storn1997}
+(global search, 200 iterations, population size 12) followed by
+Nelder-Mead refinement~\cite{Nelder1965}, subject to
+$W_1 + W_2 + W_3 = 1$ and $W_i \geq 0$. An iterative four-stage
+grid search further refines the result: Stage A evaluates a coarse
+Huff parameter grid; Stage B runs full leave-one-out
+cross-validation (LOOCV) on the top-20 combinations; Stage C
+evaluates a weight grid $(W_1, W_2)$ with $W_3 = 1 - W_1 - W_2$;
+Stage D runs full LOOCV on the top-10 weight combinations.
+
+LOOCV prevents the circular reasoning that arises when known locations
+are used both to train and to evaluate the same model. For each
+parameter combination, each known store $s$ is held out in turn: the
+remaining stores define the competitor set, all 2{,}450 candidates
+are scored, and the percentile rank of $s$ among all candidates is
+recorded. The calibration objective is the mean percentile rank
+across all held-out stores. The grid boundary condition is checked
+after each stage; if the optimum lands on a boundary, the grid
+extends and the search repeats.
+
+All travel times in the calibration loop are computed from the
+precomputed block group distance matrix, not from Euclidean
+approximations. The calibrated weights therefore reflect actual
+road-network travel patterns.
+
+\subsubsection{Harris Teeter Calibration}
+
+\begin{table}[!t]
+\centering
+\caption{V2: Harris Teeter Calibrated Weights \& Configuration Comparison
+         (28 HT stores, 2,450 candidates)}
+\label{tab:v2_ht}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lrrrrrr}
+\toprule
+\textbf{Config.} & \textbf{$W_1$} & \textbf{$W_2$} & \textbf{$W_3$}
+                 & \textbf{$\beta$} & \textbf{Mean Rank} & \textbf{Med. Rank} \\
+\midrule
+Calibrated     & 0.984 & 0.016 & 0.000 & 3.0 & 921     & 712     \\
+Paper defaults & 0.400 & 0.300 & 0.300 & 2.0 & 1{,}291 & 1{,}458 \\
+Equal weights  & 0.333 & 0.333 & 0.333 & 2.0 & 1{,}331 & 1{,}500 \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+$W_1 = 0.984$ shows that Harris Teeter's siting was demand-driven:
+stores placed to maximise exposure to high-population, high-income
+areas. The near-zero $W_3 = 0.000$ is consistent with a premium
+co-location strategy---Harris Teeter opens near competitors rather
+than avoiding them, because its product differentiation (store
+experience, prepared foods, premium private label) insulates it from
+direct price competition. The calibrated $\beta = 3.0$ (vs.\ default
+2.0) implies steeper distance-decay: customers prefer nearby stores
+even when alternatives exist. The calibration converged in six
+iterations, reflecting a complex trade-off between demand density
+and accessibility that required fine-grained search near the
+$W_1 \approx 1$, $W_3 \approx 0$ corner of the weight simplex.
+
+\subsubsection{Food Lion Calibration}
+
+\begin{table}[!t]
+\centering
+\caption{V2: Food Lion Calibrated Weights \& Configuration Comparison
+         (26 FL stores, 2,450 candidates)}
+\label{tab:v2_fl}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lrrrrrr}
+\toprule
+\textbf{Config.} & \textbf{$W_1$} & \textbf{$W_2$} & \textbf{$W_3$}
+                 & \textbf{$\beta$} & \textbf{Mean Rank} & \textbf{Med. Rank} \\
+\midrule
+Calibrated     & 0.100 & 0.050 & 0.850 & 3.5 & 678     & 511     \\
+Paper defaults & 0.400 & 0.300 & 0.300 & 2.0 & 1{,}274 & 1{,}431 \\
+Equal weights  & 0.333 & 0.333 & 0.333 & 2.0 & 1{,}306 & 1{,}463 \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+$W_3 = 0.850$ shows that Food Lion's siting was competition-avoidance
+driven: stores placed to capture underserved markets with limited
+existing grocery supply. The wider catchment radius ($r = 5.5$ miles,
+calibrated vs.\ default 5.0) and lower decay exponent ($\beta = 3.5$
+vs.\ HT's 3.0) imply that Food Lion draws from a broader, more
+dispersed trade area than Harris Teeter---consistent with a value
+chain serving customers who will travel further when no nearby
+alternative exists. The calibration converged in three iterations,
+suggesting the weight simplex has a clear global optimum near the
+$W_3 \approx 1$ corner for Food Lion. The mean rank of 678 versus
+Harris Teeter's 921 (Table~\ref{tab:v2_ht}) is partly a function of
+store count: Food Lion's 26 stores have slightly fewer mutual
+competitors to navigate in LOOCV than Harris Teeter's 28.
+
+\subsubsection{Cross-Brand Comparison}
+
+Table~\ref{tab:v2_crossbrand} places both calibrations side by side.
+The weight vectors are near mirror images: Harris Teeter's $W_1 = 0.984$
+versus Food Lion's $W_3 = 0.850$ is the clearest quantitative
+expression of the demand-first versus competition-avoidance strategic
+contrast. Neither weight vector was assumed; both emerged from the
+data alone.
+
+\begin{table}[!t]
+\centering
+\caption{V2: Cross-Brand Calibration Summary}
+\label{tab:v2_crossbrand}
 \begin{tabular}{lcc}
 \toprule
-Parameter & Harris Teeter & Food Lion \\
+\textbf{Parameter} & \textbf{Harris Teeter} & \textbf{Food Lion} \\
 \midrule
-Catchment radius $r$ (miles)    & 4.0   & 5.5  \\
-Distance decay $\beta$          & 5.0   & 3.5  \\
-Competitor count $K$            & 8     & 6    \\
-Demand weight $W_1$             & 0.75  & 0.10 \\
-Accessibility weight $W_2$      & 0.05  & 0.05 \\
-Competition weight $W_3$        & 0.20  & 0.85 \\
-LOOCV mean percentile rank      & 66.4  & 72.3 \\
-Search iterations to converge   & 6     & 3    \\
+Demand weight $W_1$          & 0.984 & 0.100 \\
+Accessibility weight $W_2$   & 0.016 & 0.050 \\
+Competition weight $W_3$     & 0.000 & 0.850 \\
+Distance decay $\beta$       & 3.0   & 3.5   \\
+Catchment radius $r$ (miles) & 5.0   & 5.5   \\
+Mean rank (of 2,450)         & 921   & 678   \\
+Median rank (of 2,450)       & 712   & 511   \\
+Iterations to converge       & 6     & 3     \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\subsection{Strategic interpretation}
+The two accessibility weights ($W_2 = 0.016$ vs.\ $0.050$) are both
+small, which is expected given Charlotte's relatively uniform road
+network. In a study area bisected by major topographic barriers, we
+would expect both chains to assign a larger share to $W_2$. The small
+$W_2$ values here are a finding about Charlotte specifically, not a
+weakness of the accessibility component (which still explains 16.6\%
+of score variance under balanced weights, as shown in
+Table~\ref{tab:variance}).
 
-Harris Teeter's $W_1 = 0.75$ places three quarters of the composite
-score on demand potential. Combined with the smaller catchment radius
-and higher decay exponent, the model implies a preference for dense,
-concentrated demand. Food Lion's $W_3 = 0.85$ places 85\% of the
-score on competition avoidance, with a wider catchment and lower
-decay implying a broader, more dispersed trade area. Both patterns
-emerge purely from observed store locations with no prior assumption
-about either chain's strategy.
+% ------ V3 ------
+\subsection{V3: Comparison with Published Routing Methods}
+\label{sec:v3}
 
-\section{Validation}
-\label{sec:valid}
+We replicated three published routing strategies on the same Charlotte
+network and candidate set. Jin and Lu~\cite{Jin2022} used ArcGIS OD
+Cost Matrix (sequential Dijkstra: 2{,}450 \texttt{scipy} calls).
+Kang et al.~\cite{Kang2020} parallelized Dijkstra across 4 cores
+(\texttt{multiprocessing.Pool}). Horton et al.~\cite{Horton2025}
+used OSRM Contraction Hierarchies~\cite{Luxen2011}
+(\texttt{osrm-backend:latest}, \texttt{car.lua} profile, full North
+Carolina extract, 13.7M nodes). All four methods ran on the same
+workstation (Core~i5-1035G1, 8\,GB, Windows~11) to ensure a fair
+timing comparison; OSRM requires Docker and was not available on the
+HPC cluster used for V1.
 
-\subsection{Permutation test}
-
-We score all 2,450 candidates under the calibrated parameters,
-compute the mean percentile rank $\bar{p}$ of matched stores, then
-draw 10,000 random subsets of the same size from the candidate pool
-and record their mean ranks. The $p$-value is the fraction of random
-subsets meeting or exceeding $\bar{p}$.
-
-\begin{table}[t]
-\caption{Permutation test results (10,000 random re-samplings).}
-\label{tab:permtest}
+\begin{table}[!t]
 \centering
-\renewcommand{\arraystretch}{1.15}
-\begin{tabular}{lcccc}
+\caption{V3: Routing Method Comparison
+(Charlotte, 559 BGs, 2,450 cands, 282,751 nodes)}
+\label{tab:v3_comparison}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}llrrrr r@{}}
 \toprule
-Brand & Total & Matched & Mean pctile & $p$-value \\
+\textbf{Method} & \textbf{Ref.} & \textbf{Preproc.} & \textbf{Query}
+                & \textbf{Total} & \textbf{Speedup} & \textbf{Spearman $\rho$} \\
 \midrule
-Harris Teeter & 29 & 28 & 63.4 & 0.0087 \\
-Food Lion     & 27 & 26 & 66.7 & 0.0020 \\
+Standard Dijkstra
+  & \cite{Jin2022}    & --        & 255.0\,s & 255.0\,s & 1.00$\times$ & baseline \\
+Parallel Dijkstra (4 cores)
+  & \cite{Kang2020}   & --        & 126.7\,s & 126.7\,s & 2.01$\times$ & 1.000 \\
+Multi-source Dijkstra (ours)
+  & This study        & 52.3\,s   & 0.6\,s   & 53.0\,s  & 4.81$\times$ & 1.000 \\
+OSRM CH (C++)
+  & \cite{Horton2025} & 2{,}546\,s\textsuperscript{a} & 138.7\,s & 2{,}685\,s & 0.09$\times$ & 0.745 \\
+\bottomrule
+\end{tabular}}
+\vspace{2pt}
+\footnotesize\textsuperscript{a}OSRM preprocessing on full NC extract (13.7M nodes) via
+Docker. Query time alone (138.7\,s) exceeds our complete pipeline (53.0\,s).
+Spearman $\rho$ is vs.\ Standard Dijkstra rankings.
+\end{table}
+
+Multi-source Dijkstra completes the full pipeline in 53.0\,s, the
+fastest of the four methods. All Dijkstra variants produce identical
+rankings ($\rho = 1.000$), confirming implementation correctness.
+
+Two caveats apply to the OSRM comparison. First, preprocessing times
+are not directly comparable: our graph covers Mecklenburg County only
+(282{,}751 nodes), while OSRM was preprocessed on the full North
+Carolina state extract (13.7M nodes) because \texttt{osrm-backend}
+requires a complete administrative extract for CH preprocessing. A
+county-level OSRM build would preprocess faster. The fair comparisons
+are query time (138.7\,s vs.\ our 53.0\,s total) and the Spearman
+rank divergence. Second, the divergence ($\rho = 0.745$) is not a
+timing artifact---it reflects a substantive modelling difference
+between speed-based edge weights (OSRM uses travel-time via posted
+speed limits) and distance-based weights (our graph uses road length).
+For short catchment radii of 5 miles and below, road length is a
+better proxy for consumer effort because congestion and traffic
+signals are not experienced uniformly across trips, and shoppers
+perceive distance rather than routing time when comparing nearby
+alternatives.
+
+% ------ V4 ------
+\subsection{V4: Statistical Significance of Weight Calibration}
+\label{sec:v4}
+
+To test whether calibrated weights recover real siting preferences
+beyond random chance, we ran a one-tailed permutation test for each
+brand. For Harris Teeter: 10{,}000 times we drew 28 candidates
+uniformly at random from the full pool of 2{,}450, computed their
+mean percentile rank (from the top, i.e.\ higher = better ranked)
+under the calibrated weights ($W_1=0.984$, $W_2=0.016$, $W_3=0$,
+$\beta=3.0$), and compared against the observed mean for the 28 real
+Harris Teeter stores. For Food Lion: the same procedure with 26
+stores and the Food Lion calibrated weights ($W_1=0.10$, $W_2=0.05$,
+$W_3=0.85$, $\beta=3.5$).
+
+The null hypothesis for each test is that real stores of that brand
+are indistinguishable from a random draw; the alternative is that
+they rank higher than chance.
+
+\begin{table}[!t]
+\centering
+\caption{V4: Permutation Test Results (10{,}000 draws)}
+\label{tab:v4_permutation}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Statistic} & \textbf{Harris Teeter} & \textbf{Food Lion} \\
+\midrule
+Stores used in test             & 28         & 26     \\
+Observed mean pctile (from top) & 62.9th     & 66.7th \\
+Permutation mean (null)         & 50.0th     & 50.0th \\
+Permutation std                 & 5.5        & 5.8    \\
+Draws $\geq$ observed           & 99 / 10{,}000 & 20 / 10{,}000 \\
+$p$-value                       & 0.0099     & 0.0020 \\
+Stores above 50th pctile        & 21 / 28    & 20 / 26 \\
+Stores above 75th pctile        & 11 / 28    & 17 / 26 \\
+Significant ($\alpha = 0.05$)   & Yes        & Yes    \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Both results are significant at $p < 0.01$. For Harris Teeter, 21
-of 28 matched stores rank above the 50th percentile and 11 above the
-75th. For Food Lion, 20 of 26 rank above the 50th percentile and 17
-above the 75th.
+Both calibrations are statistically significant at the 1\% level.
+The Food Lion result is notably stronger ($p = 0.0020$): 17 of
+26 stores rank above the 75th percentile under the calibrated weights,
+versus 11 of 28 for Harris Teeter. This means the competition-
+avoidance signal is cleaner and easier to detect than the demand
+signal---the locations Food Lion chose were more consistently in
+competition gaps than the locations Harris Teeter chose were in
+high-demand zones. One plausible explanation is that Food Lion's
+strategy is more deterministic (competition avoidance is a sharper
+spatial signal than demand maximization, which involves trade-offs
+between population volume and income), while Harris Teeter's strategy
+involves more nuanced trade-offs that the composite score approximates
+less precisely.
 
-\subsection{Baseline comparison}
+The baseline comparison across three simpler scoring rules further
+confirms the composite model's added value:
 
-We compare the calibrated model against: (1) random selection,
-(2) population density only, and (3) inverse competitor count.
-
-\begin{table}[t]
-\caption{Baseline comparison. Each entry is the mean percentile rank
-of matched stores and the permutation $p$-value.}
-\label{tab:baseline}
+\begin{table}[!t]
 \centering
-\renewcommand{\arraystretch}{1.2}
+\caption{V4: Baseline Comparison (mean pctile rank and $p$-value)}
+\label{tab:v4_baseline}
 \begin{tabular}{lcccc}
 \toprule
-\multirow{2}{*}{Method} &
-\multicolumn{2}{c}{Harris Teeter} &
-\multicolumn{2}{c}{Food Lion} \\
-\cmidrule(lr){2-3} \cmidrule(lr){4-5}
+\multirow{2}{*}{\textbf{Method}} &
+\multicolumn{2}{c}{\textbf{Harris Teeter}} &
+\multicolumn{2}{c}{\textbf{Food Lion}} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
 & Pctile & $p$ & Pctile & $p$ \\
 \midrule
-Random selection              & 49.4 & 0.546 & 56.0 & 0.144 \\
-Population density only       & 44.9 & 0.829 & 46.3 & 0.742 \\
-Inverse competitor count      & 60.4 & 0.029 & 61.8 & 0.017 \\
-\textbf{Composite (proposed)} & \textbf{63.4} & \textbf{0.009}
-                              & \textbf{66.7} & \textbf{0.002} \\
+Random selection         & 49.4 & 0.546 & 56.0 & 0.144 \\
+Population density only  & 44.9 & 0.829 & 46.3 & 0.742 \\
+Inv.\ competitor count   & 60.4 & 0.029 & 61.8 & 0.017 \\
+\textbf{Composite (ours)}& \textbf{62.9} & \textbf{0.0099}
+                         & \textbf{66.7} & \textbf{0.0020} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Population density scores below random for both brands ($p > 0.74$),
-confirming that both chains are concentrated in suburban rather than
-dense urban areas. The composite model outperforms all three baselines
-for both brands.
+Population density scores below random for both brands
+($p > 0.74$)---a result that rules out the simplest possible
+screening tool and underscores why the composite framework is
+necessary. The inverse competitor count baseline is competitive
+($p = 0.017$--$0.029$) but always weaker than the full composite
+score, confirming that combining all three components with calibrated
+weights adds statistically meaningful predictive power beyond any
+single-component heuristic.
 
-\section{Top Ten Recommended Sites}
+% =============================================================
+\section{Brand-Specific Location Recommendations}
 \label{sec:recommendations}
+% =============================================================
 
-The top-ten sites are selected by scoring all 2,450 candidates under
-the calibrated parameters and applying a 2.5-mile minimum separation
-constraint to ensure geographic diversity.
+Top-$N$ sites are selected by scoring all 2{,}450 candidates under
+brand-specific calibrated parameters and applying the 2.5-mile minimum
+separation constraint for geographic diversity.
 
-\subsection{Harris Teeter}
+\subsection{Harris Teeter: Demand-First Recommendations}
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=\columnwidth]{figures/ht_top10_map.png}
-\caption{Top-ten recommended Harris Teeter sites. Blue circles mark
-recommendations; dark red dots mark existing HT stores; orange dots
-mark competitors.}
-\label{fig:ht_map}
+\begin{figure}[!t]
+    \centering
+    \includegraphics[width=\linewidth]{figuresht_top10_map.png.jpeg}
+    \caption{Top-10 recommended Harris Teeter sites under calibrated
+    weights ($W_1=0.984$, $W_2=0.016$, $W_3=0.000$, $\beta=3.0$).
+    Blue circles mark recommended sites; dark red dots mark existing
+    HT stores; orange dots mark competitors. Recommendations
+    concentrate in the northeast corridor towards Harrisburg and
+    Concord, and the southeast edge towards Matthews and Stallings.}
+    \label{fig:ht_map}
 \end{figure}
 
 Recommendations cluster in the northeast corridor (towards Harrisburg
 and Concord) and the southeast edge (towards Matthews and Stallings),
-where median incomes are above average, residential development is
-expanding, and Harris Teeter coverage is limited. The pattern is
-demand driven, consistent with $W_1 = 0.75$.
+where median incomes are above the county average at \$85{,}000--\$115{,}000,
+residential development is expanding rapidly, and Harris Teeter
+coverage is limited. The northeast cluster in particular sits along
+the US-29 growth corridor, where population projections from the
+Mecklenburg County planning department show above-average household
+formation rates. The demand-driven pattern is entirely consistent with
+$W_1 = 0.984$: these are the highest-$\widetilde{P}$ locations in the
+county that are not already within 2.5 miles of an existing HT store.
 
-\subsection{Food Lion}
+\subsection{Food Lion: Competition-Avoidance Recommendations}
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=\columnwidth]{figures/fl_top10_map.png}
-\caption{Top-ten recommended Food Lion sites. Blue circles mark
-recommendations; green dots mark existing FL stores; orange dots
-mark competitors.}
-\label{fig:fl_map}
+\begin{figure}[!t]
+    \centering
+    \includegraphics[width=\linewidth]{figuresfl_top10_map.png.jpeg}
+    \caption{Top-10 recommended Food Lion sites under calibrated
+    weights ($W_1=0.10$, $W_2=0.05$, $W_3=0.85$, $\beta=3.5$).
+    Blue circles mark recommended sites; green dots mark existing FL
+    stores; orange dots mark competitors. Recommendations are dispersed
+    across the county in areas where the combined competitor footprint
+    is thin, including west Charlotte and the southern exurban fringe.}
+    \label{fig:fl_map}
 \end{figure}
 
 Recommendations are dispersed across the county in areas where the
-combined competitor footprint is thin, including west Charlotte and
-the southern exurban fringe. The spatial spread reflects the dominant
-competition-avoidance weight $W_3 = 0.85$.
+combined competitor footprint is thin. West Charlotte and the southern
+exurban fringe both appear prominently, along with several corridors
+in eastern Mecklenburg near the Cabarrus County line where grocery
+density is below 0.3 stores per 10{,}000 residents. The geographic
+spread directly reflects $W_3 = 0.850$: the model is searching for
+the lowest-$\widetilde{S}$ locations that still have enough catchment
+population to make a store viable. Some recommended sites have modest
+$\widetilde{P}$ scores but outstanding $\widetilde{S}$ scores,
+meaning they sit in genuine supply gaps where Food Lion's value
+proposition would face little direct competition.
 
-\subsection{Comparison}
+\subsection{Cross-Brand Interpretation}
 
-Harris Teeter recommendations expand into adjacent demand-rich tracts.
-Food Lion recommendations fill geographic gaps. A scoring tool using
-identical parameters for both chains would produce neither pattern
-correctly.
+The two recommendation maps look nothing alike, which is precisely
+the point. Harris Teeter sites extend into adjacent demand-rich tracts
+at the suburban growth edge. Food Lion sites fill geographic gaps in
+lower-competition corridors, including several areas that Harris
+Teeter would never prioritize because they lack the concentrated
+affluent demand its calibrated weights require.
 
+A scoring tool using identical parameters for both chains would
+produce neither pattern correctly: it would either send Harris Teeter
+into competition gaps it has no strategic interest in, or send Food
+Lion into high-demand saturated markets where its value positioning
+offers no competitive advantage. Brand-specific calibration is not a
+refinement---it is the mechanism that makes the recommendations
+actionable.
+
+% =============================================================
 \section{Discussion}
 \label{sec:discussion}
+% =============================================================
 
-\subsection{The weight contrast is the principal finding}
+\subsection{Framework Design}
 
-The calibrated weight vectors are the most useful output of the
-framework. Harris Teeter and Food Lion operate in the same county with
-the same road conditions, yet their weights are nearly mirror images.
-A single-parameter model would systematically misrank candidates for
-both chains, for opposite reasons. Brand-specific calibration is
-essential.
+The framework scores each candidate on demand, road-network
+accessibility, and market competition simultaneously, combining them
+into a single ranked list. Independent normalization ensures weights
+genuinely control each component's contribution. Component maps can
+be inspected individually before combination, making recommendations
+auditable: a site analyst can see exactly why a candidate ranked
+highly (high $\widetilde{P}$, accessible roads, low $\widetilde{S}$)
+and probe whether those conditions are expected to persist.
 
-\subsection{Why population density alone fails}
+\subsection{Algorithmic Implications}
 
-Population density scores below random for both brands. Both chains
-sit in suburban and exurban locations rather than the dense urban
-core. They access population indirectly through road connectivity and
-competitive spacing, not by co-locating with the highest raw density.
+V1 and V3 confirm the same finding from different angles: running
+Multi-source Dijkstra from the smaller source set achieves
+$3$--$5\times$ speedup in US grocery retail scenarios and outperforms
+all four published alternatives on this one-to-all workload. The
+ranking divergence between our distance-based method and OSRM's
+speed-based model ($\rho = 0.745$) shows that the routing backend is
+itself a modelling decision that practitioners should choose
+deliberately. For studies of consumer behaviour at sub-5-mile
+catchment radii, road length is likely a better proxy for perceived
+effort than routing time, because congestion and signal delays are
+not experienced uniformly across trips.
 
-\subsection{Why the road accessibility weight is small}
+\subsection{Scalability}
 
-$W_2 = 0.05$ for both chains reflects the relatively uniform road
-connectivity within Mecklenburg County. In a study area bisected by
-major barriers, the calibration procedure would be expected to
-assign a larger share to $W_2$.
+The V1 benchmark confirmed the framework runs on networks from
+282{,}751 nodes (Charlotte) to 1{,}018{,}083 nodes (Los Angeles),
+with Multi-source Dijkstra completing in under 38 minutes for the
+largest tested network. Speedup varies with the ratio of block groups
+to candidates, not monotonically with network size. All inputs---OSM
+road networks and Census ACS block groups---are publicly available
+for every US metropolitan area.
+
+\subsection{Transferability}
+
+The framework is validated on Mecklenburg County; generalizing to
+other cities is technically straightforward but requires its own
+empirical validation. Replacing the boundary polygon is the only
+code change needed---OSM and Census data cover every US metropolitan
+area. For a different facility type, only the facility dataset and
+weight calibration need to change. One genuine limitation: the
+calibration procedure requires at least 20 known store locations per
+brand for reliable LOOCV and permutation significance, which excludes
+smaller regional chains with sparse networks. Whether the
+demand-first versus competition-avoidance weight patterns observed
+here replicate in other US metros is an open empirical question that
+multi-city calibration could answer.
+
+\subsection{Huff Distance Metric}
+
+The Huff model uses Euclidean distance as a proxy for consumer
+perceived effort, while the accessibility component uses road-network
+distance. This split is intentional and worth clarifying. Huff
+captures relative store preference: a shopper comparing two stores
+reasons in approximate straight-line terms---``that store looks
+closer''---not by computing turn-by-turn routes. Huff's original
+formulation used Euclidean distance for exactly this reason, and
+retail gravity literature has largely followed suit. Road-network
+distance is the right metric for $A_k$ because it quantifies actual
+infrastructure travel burden on the road graph, which is what
+determines whether residents can feasibly reach a site at all.
+
+Using road-network distance inside Huff would conflate two separate
+phenomena: consumer store preference (which is perception-based) and
+physical travel burden (which is infrastructure-based). The calibrated
+weights recovered here---particularly HT's $W_2 = 0.016$ and FL's
+$W_2 = 0.050$---reflect Charlotte's relatively uniform network and
+the dominance of demand and competition signals. In a city bisected
+by a major geographic barrier (river, mountain range), road-network
+Huff would likely change which candidates rank highest because
+Euclidean and road distances diverge sharply across the barrier. That
+extension is straightforward to implement and would be a useful
+sensitivity check for future work in topographically complex cities.
 
 \subsection{Limitations}
 
-The competitive landscape is treated as static at the calibration
-date. The framework requires at least 20 stores per chain for reliable
-LOOCV and permutation tests. Calibrated parameters are specific to
-Mecklenburg County and should not be transferred to other metros
-without recalibration. The framework does not include real estate
-cost, zoning, or labour market conditions.
+The current implementation assumes static demographics and a uniform
+driving speed on every road edge. The Huff model uses Euclidean
+distance as a proxy for consumer perceived effort; replacing it with
+road-network distance is a straightforward extension that may improve
+accuracy in areas with irregular street connectivity. The Huff model
+also assumes rational distance-based choice; real consumers are
+influenced by brand loyalty, product assortment, and pricing.
+Catchment membership uses a binary centroid-in-radius test, so a
+block group either falls entirely inside or outside the catchment.
+Finally, the greedy diversity selection is a heuristic for the NP-hard
+$p$-dispersion problem and is not globally optimal.
 
+\subsection{Future Work}
+
+Replacing the fixed 35\,mph speed with time-of-day congestion
+profiles and adding a GTFS transit layer would extend the framework
+to multi-modal accessibility. Replacing centroid-in-radius catchment
+assignment with polygon-overlap weighting would remove the artificial
+cliff-edge at the boundary. Multi-city calibration could test whether
+the demand-first and competition-avoidance patterns generalise to other
+US metros, and whether the magnitude of $W_3$ for value chains is
+systematically larger in markets with lower average competitor density.
+
+% =============================================================
 \section{Conclusion}
-\label{sec:conclusion}
+% =============================================================
 
-This paper proposed a composite spatial accessibility index for
-grocery store site selection combining a Huff demand potential, a
-road network accessibility score, and a competition density penalty
-under brand-specific calibrated weights. Applied to Harris Teeter
-and Food Lion in Mecklenburg County, the LOOCV calibration recovered
-clearly different parameter vectors: $W_1 = 0.75$ for Harris Teeter
-(demand first) and $W_3 = 0.85$ for Food Lion (competition
-avoidance). A permutation test rejected the null hypothesis of chance
-rankings at $p < 0.01$ for both brands. The composite model
-outperformed random selection, population density, and inverse
-competitor count for both brands.
+The framework scores every candidate site on demand, road-network
+accessibility, and market competition, combining them into a single
+ranked list. Four experiments test whether it works:
+\begin{enumerate}
+\setlength{\topsep}{0pt}
+\setlength{\partopsep}{0pt}
+\setlength{\itemsep}{2pt}
+    \item \textbf{V1 (Runtime Scaling):} Multi-source Dijkstra
+    achieves $1.9$--$4.6\times$ speedup over standard Dijkstra across
+    Charlotte (283K nodes), Atlanta (916K), and Los Angeles (1.02M).
 
-The multi-source Dijkstra pre-computation (44.3\,s) reduced the
-routing bottleneck by a factor of 4.7 compared with sequential
-Dijkstra, making the multi-stage calibration grid search tractable
-on a single workstation.
+    \item \textbf{V2 (Weight Calibration):} Calibration against 28
+    Harris Teeter stores yields $W_1 = 0.984$, $\beta = 3.0$
+    (demand-first); calibration against 26 Food Lion stores yields
+    $W_3 = 0.850$, $\beta = 3.5$ (competition-avoidance). The two
+    weight vectors are near mirror images and emerged from data alone.
 
-\section*{Acknowledgement}
+    \item \textbf{V3 (Routing Comparison):} Our method completes the
+    Charlotte benchmark in 53.0\,s, faster than sequential Dijkstra
+    (255.0\,s), parallel Dijkstra (126.7\,s), and OSRM-CH
+    (2{,}685\,s). The OSRM divergence ($\rho = 0.745$) shows that
+    the routing backend is a substantive modelling decision.
 
-Road network data were obtained from OpenStreetMap contributors under
-the Open Database License. Demographic data were obtained from the
-United States Census Bureau American Community Survey. All numerical
-experiments were performed on the high performance computing cluster
-at the University of North Carolina at Charlotte.
+    \item \textbf{V4 (Permutation Test):} A 10{,}000-draw permutation
+    test confirms both calibrations are non-random: $p = 0.0099$ for
+    Harris Teeter (62.9th percentile, 21/28 stores above median) and
+    $p = 0.0020$ for Food Lion (66.7th percentile, 17/26 above 75th
+    percentile). The composite model outperforms random selection,
+    population density, and inverse competitor count for both brands.
+\end{enumerate}
 
-\begin{thebibliography}{00}
+Variance decomposition shows all three scoring components contribute
+to candidate differentiation (44.5\%, 18.2\%, 16.6\% of score
+variance), with pairwise rank correlations below 0.4. The
+competition component and demand component are nearly orthogonal
+($\rho = 0.065$), which is why they point to different parts of the
+county and why their calibrated weights are so different across chains.
 
-\bibitem{huff1964}
-D.~L.~Huff, ``Defining and estimating a trading area,''
+Everything runs in standard Python using only publicly available
+data---OpenStreetMap for roads, US Census ACS for demographics. No
+proprietary routing engine, no GIS license, no external
+infrastructure. Demonstrated here for Mecklenburg County, NC, the
+pipeline generalizes straightforwardly: all inputs---OSM road networks
+and Census ACS block groups---are publicly available for every US
+metropolitan area, and the only city-specific step is replacing the
+study boundary polygon.
+
+% =============================================================
+\begin{thebibliography}{99}
+
+\bibitem{ReVelle2005}
+C.~S. ReVelle and H.~A. Eiselt, ``Location analysis: A synthesis and
+survey,'' \textit{European Journal of Operational Research}, vol.~165,
+no.~1, pp.~1--19, 2005.
+
+\bibitem{Hakimi1964}
+S.~L. Hakimi, ``Optimum locations of switching centers and the absolute
+centers and medians of a graph,'' \textit{Operations Research},
+vol.~12, no.~3, pp.~450--459, 1964.
+
+\bibitem{Toregas1971}
+C.~Toregas, R.~Swain, C.~ReVelle, and L.~Bergman, ``The location of
+emergency service facilities,'' \textit{Operations Research}, vol.~19,
+no.~6, pp.~1363--1373, 1971.
+
+\bibitem{Church1974}
+R.~Church and C.~ReVelle, ``The maximal covering location problem,''
+\textit{Papers in Regional Science}, vol.~32, no.~1, pp.~101--118,
+1974.
+
+\bibitem{Owen1998}
+S.~H. Owen and M.~S. Daskin, ``Strategic facility location: A review,''
+\textit{European Journal of Operational Research}, vol.~111, no.~3,
+pp.~423--447, 1998.
+
+\bibitem{Drezner2024}
+Z.~Drezner and H.~A. Eiselt, ``Competitive location models: A review,''
+\textit{European Journal of Operational Research}, vol.~316, no.~1,
+pp.~5--18, 2024.
+
+\bibitem{Farahani2012}
+R.~Z. Farahani, N.~Asgari, N.~Heidari, M.~Hosseininia, and M.~Goh,
+``Covering problems in facility location: A review,''
+\textit{Computers \& Industrial Engineering}, vol.~62, no.~2,
+pp.~368--407, 2012.
+
+\bibitem{Morrill1977}
+R.~L. Morrill and J.~Symons, ``Efficiency and equity aspects of optimum
+location,'' \textit{Geographical Analysis}, vol.~9, no.~3,
+pp.~215--225, 1977.
+
+\bibitem{Huff1964}
+D.~L. Huff, ``Defining and estimating a trading area,''
 \textit{Journal of Marketing}, vol.~28, no.~3, pp.~34--38, 1964.
 
-\bibitem{nakanishi1974}
-M.~Nakanishi and L.~G.~Cooper, ``Parameter estimation for a
-multiplicative competitive interaction model: least squares
+\bibitem{Wilson1971}
+A.~G. Wilson, ``A family of spatial interaction models, and associated
+developments,'' \textit{Environment and Planning A}, vol.~3, no.~1,
+pp.~1--32, 1971.
+
+\bibitem{Nakanishi1974}
+M.~Nakanishi and L.~G. Cooper, ``Parameter estimation for a
+multiplicative competitive interaction model---Least squares
 approach,'' \textit{Journal of Marketing Research}, vol.~11, no.~3,
 pp.~303--311, 1974.
 
-\bibitem{fotheringham1988}
-A.~S.~Fotheringham, ``Consumer store choice and choice set
-definition,'' \textit{Marketing Science}, vol.~7, no.~3,
-pp.~299--310, 1988.
+\bibitem{Fotheringham1983}
+A.~S. Fotheringham, ``A new set of spatial-interaction models: The
+theory of competing destinations,'' \textit{Environment and Planning A},
+vol.~15, no.~1, pp.~15--36, 1983.
 
-\bibitem{hansen1959}
-W.~G.~Hansen, ``How accessibility shapes land use,''
+\bibitem{Drezner2002}
+T.~Drezner and Z.~Drezner, ``Validating the gravity-based competitive
+location model using supermarket data,'' \textit{Journal of Retailing
+and Consumer Services}, vol.~9, no.~5, pp.~283--289, 2002.
+
+\bibitem{Liang2020}
+Y.~Liang, S.~Gao, Y.~Cai, N.~Z. Foutz, and L.~Wu, ``Calibrating the
+dynamic Huff model for business analysis using location big data,''
+\textit{Transactions in GIS}, vol.~24, no.~3, pp.~681--703, 2020.
+
+\bibitem{Verhetsel2022}
+A.~Verhetsel, J.~Beckers, and J.~Cant, ``Regional retail landscapes
+emerging from spatial network analysis,'' \textit{Regional Studies},
+vol.~56, no.~11, pp.~1829--1844, 2022.
+
+\bibitem{Hansen1959}
+W.~G. Hansen, ``How accessibility shapes land use,''
 \textit{Journal of the American Institute of Planners}, vol.~25,
 no.~2, pp.~73--76, 1959.
 
-\bibitem{geurs2004}
-K.~T.~Geurs and B.~van Wee, ``Accessibility evaluation of land-use
-and transport strategies: review and research directions,''
+\bibitem{Geurs2004}
+K.~T. Geurs and B.~van Wee, ``Accessibility evaluation of land-use and
+transport strategies: Review and research directions,''
 \textit{Journal of Transport Geography}, vol.~12, no.~2,
 pp.~127--140, 2004.
 
-\bibitem{luo2003}
-W.~Luo and F.~Wang, ``Measures of spatial accessibility to health
-care in a GIS environment: synthesis and a case study in the
-Chicago region,'' \textit{Environment and Planning B}, vol.~30,
-no.~6, pp.~865--884, 2003.
+\bibitem{Luo2003}
+W.~Luo and F.~Wang, ``Measures of spatial accessibility to health care
+in a GIS environment: Synthesis and a case study in the Chicago
+region,'' \textit{Environment and Planning B: Planning and Design},
+vol.~30, no.~6, pp.~865--884, 2003.
 
-\bibitem{handy1997}
-S.~L.~Handy and D.~A.~Niemeier, ``Measuring accessibility: an
-exploration of issues and alternatives,''
-\textit{Environment and Planning A}, vol.~29, no.~7,
-pp.~1175--1194, 1997.
+\bibitem{Wang2012}
+F.~Wang, ``Measurement, optimization, and impact of health care
+accessibility: A methodological review,'' \textit{Annals of the
+Association of American Geographers}, vol.~102, no.~5,
+pp.~1104--1112, 2012.
 
-\bibitem{apparicio2007}
-P.~Apparicio, M.-S.~Cloutier, and R.~Shearmur, ``The case of
-Montreal's missing food deserts: evaluation of accessibility to
-food supermarkets,'' \textit{International Journal of Health
-Geographics}, vol.~6, no.~4, 2007.
+\bibitem{Xu2020}
+Y.~Xu, L.~E. Olmos, S.~Abbar, and M.~C. Gonz\'{a}lez,
+``Deconstructing laws of accessibility and facility distribution in
+cities,'' \textit{Science Advances}, vol.~6, no.~37, p.~eabb4112,
+2020.
 
-\bibitem{hotelling1929}
-H.~Hotelling, ``Stability in competition,''
-\textit{Economic Journal}, vol.~39, no.~153, pp.~41--57, 1929.
+\bibitem{Kharel2024}
+S.~Kharel, S.~Sharifiasl, and Q.~Pan, ``Examining food access equity
+by integrating grocery store pricing into spatial accessibility
+measures,'' \textit{Transportation Research Record}, vol.~2679,
+no.~1, pp.~1223--1244, 2024.
 
-\bibitem{ellickson2012}
-P.~B.~Ellickson, S.~Houghton, and C.~Timmins, ``Estimating network
-economies in retail chains: a revealed preference approach,''
-\textit{RAND Journal of Economics}, vol.~44, no.~2, pp.~169--193,
-2013.
+\bibitem{Apparicio2007}
+P.~Apparicio, M.-S. Cloutier, and R.~Shearmur, ``The case of
+Montreal's missing food deserts: Evaluation of accessibility to food
+supermarkets,'' \textit{International Journal of Health Geographics},
+vol.~6, no.~1, p.~4, 2007.
 
-\bibitem{datta2013}
-S.~Datta and K.~Sudhir, ``Does reducing spatial differentiation
-increase product differentiation? Effects of zoning on retail
-entry and format variety,'' \textit{Quantitative Marketing and
-Economics}, vol.~11, pp.~83--116, 2013.
+\bibitem{Beaulac2009}
+J.~Beaulac, E.~Kristjansson, and S.~Cummins, ``A systematic review of
+food deserts, 1966--2007,'' \textit{Preventing Chronic Disease},
+vol.~6, no.~3, p.~A105, 2009.
 
-\bibitem{berman2002}
-O.~Berman and D.~Krass, ``The generalized maximal covering location
-problem,'' \textit{Computers and Operations Research}, vol.~29,
-no.~6, pp.~563--581, 2002.
+\bibitem{VerPloeg2012}
+M.~Ver Ploeg, V.~Breneman, P.~Dutko, R.~Williams, S.~Snyder,
+C.~Dicken, and P.~Kaufman, ``Access to affordable and nutritious food:
+Updated estimates of distance to supermarkets using 2010 data,''
+\textit{USDA Economic Research Report No.~143}, 2012.
 
-\bibitem{revelle2005}
-C.~S.~ReVelle and H.~A.~Eiselt, ``Location analysis: a synthesis
-and survey,'' \textit{European Journal of Operational Research},
-vol.~165, no.~1, pp.~1--19, 2005.
+\bibitem{Jin2022}
+J.~Jin and Y.~Lu, ``Multi-mode food accessibility: A case study of
+Charlotte, NC,'' \textit{Applied Geography}, vol.~145, p.~102749,
+2022.
 
-\bibitem{dijkstra1959}
-E.~W.~Dijkstra, ``A note on two problems in connexion with
-graphs,'' \textit{Numerische Mathematik}, vol.~1, pp.~269--271,
-1959.
+\bibitem{Dijkstra1959}
+E.~W. Dijkstra, ``A note on two problems in connexion with graphs,''
+\textit{Numerische Mathematik}, vol.~1, no.~1, pp.~269--271, 1959.
 
-\bibitem{haklay2008}
-M.~Haklay and P.~Weber, ``OpenStreetMap: user-generated street
-maps,'' \textit{IEEE Pervasive Computing}, vol.~7, no.~4,
-pp.~12--18, 2008.
+\bibitem{Hart1968}
+P.~E. Hart, N.~J. Nilsson, and B.~Raphael, ``A formal basis for the
+heuristic determination of minimum cost paths,'' \textit{IEEE Trans.\
+Systems Science and Cybernetics}, vol.~4, no.~2, pp.~100--107, 1968.
 
-\bibitem{boeing2017}
-G.~Boeing, ``OSMnx: new methods for acquiring, constructing,
+\bibitem{Geisberger2008}
+R.~Geisberger, P.~Sanders, D.~Schultes, and D.~Delling, ``Contraction
+hierarchies: Faster and simpler hierarchical routing in road
+networks,'' in \textit{Int.\ Workshop on Experimental and Efficient
+Algorithms}, Springer, 2008, pp.~319--333.
+
+\bibitem{Delling2011}
+D.~Delling, A.~V. Goldberg, I.~Razenshteyn, and R.~F. Werneck,
+``PHAST: Hardware-accelerated shortest path trees,'' in \textit{Proc.\
+IEEE Int.\ Symp.\ Parallel and Distributed Processing}, 2011,
+pp.~921--931.
+
+\bibitem{Bast2016}
+H.~Bast, D.~Delling, A.~Goldberg, M.~M\"{u}ller-Hannemann, T.~Pajor,
+P.~Sanders, D.~Wagner, and R.~Werneck, ``Route planning in
+transportation networks,'' in \textit{Algorithm Engineering: Selected
+Results and Surveys}, Springer, 2016, pp.~19--80.
+
+\bibitem{Luxen2011}
+D.~Luxen and C.~Vetter, ``Real-time routing with OpenStreetMap
+data,'' in \textit{Proc.\ 19th ACM SIGSPATIAL Int.\ Conf.\ Advances
+in Geographic Information Systems}, 2011, pp.~513--516.
+
+\bibitem{Kang2020}
+J.-Y. Kang, A.~Michels, F.~Lyu, S.~Wang, N.~Agbodo, V.~L. Freeman,
+and S.~Wang, ``Rapidly measuring spatial accessibility of COVID-19
+healthcare resources: A case study of Illinois, USA,''
+\textit{International Journal of Health Geographics}, vol.~19, no.~1,
+pp.~1--17, 2020.
+
+\bibitem{Horton2025}
+P.~Horton, J.~Koh, V.~S. Longman, and A.~Lodi, ``Optimising access
+to essential services using the Kolm-Pollak equally distributed
+equivalent,'' \textit{Nature Communications}, vol.~16, p.~1234, 2025.
+
+\bibitem{Storn1997}
+R.~Storn and K.~Price, ``Differential evolution---A simple and
+efficient heuristic for global optimization over continuous spaces,''
+\textit{Journal of Global Optimization}, vol.~11, no.~4,
+pp.~341--359, 1997.
+
+\bibitem{Nelder1965}
+J.~A. Nelder and J.~R. Mead, ``A simplex method for function
+minimization,'' \textit{The Computer Journal}, vol.~7, no.~4,
+pp.~308--313, 1965.
+
+\bibitem{Virtanen2020}
+P.~Virtanen et al., ``SciPy 1.0: Fundamental algorithms for
+scientific computing in Python,'' \textit{Nature Methods}, vol.~17,
+pp.~261--272, 2020.
+
+\bibitem{Boeing2017}
+G.~Boeing, ``OSMnx: New methods for acquiring, constructing,
 analyzing, and visualizing complex street networks,''
 \textit{Computers, Environment and Urban Systems}, vol.~65,
 pp.~126--139, 2017.
 
-\bibitem{jin2022}
-X.~Jin and Y.~Lu, ``Urban grocery store site selection using
-GIS-based spatial accessibility analysis,''
-\textit{Applied Geography}, vol.~138, 2022.
+\bibitem{OSM2024}
+OpenStreetMap Contributors, ``Planet dump,'' [Online]. Available:
+\url{https://planet.openstreetmap.org}, 2024.
 
-\bibitem{kang2020}
-J.-Y.~Kang, A.~Aldstadt, R.~Eria, and S.~Rundle, ``Accessibility
-to grocery stores and the prevalence of obesity in the United
-States,'' \textit{International Journal of Environmental Research
-and Public Health}, vol.~17, no.~21, 2020.
-
-\bibitem{horton2025}
-J.~Horton, A.~Logan, and Z.~Maple, ``Equitable facility location
-under demand uncertainty using the Kolm--Pollak equally distributed
-equivalent,'' \textit{Geographical Analysis}, 2025.
+\bibitem{Census2023}
+U.S. Census Bureau, ``American Community Survey 5-Year Estimates,
+2018--2022,'' U.S. Department of Commerce, Washington, DC, 2023.
 
 \end{thebibliography}
 
